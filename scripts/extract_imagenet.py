@@ -43,9 +43,15 @@ def main():
     opt['n_thread'] = 20
     opt['compression_level'] = 3
 
-    # HR images
+    # HR train images
     opt['input_folder'] = '/disk_c/han/data/ImageNet/train/'
     opt['save_folder'] = '/disk_c/han/data/ImageNet_256x256/train/'
+    opt['crop_size'] = 256
+    extract_subimages(opt)
+
+    # HR val images
+    opt['input_folder'] = '/disk_c/han/data/ImageNet/val/'
+    opt['save_folder'] = '/disk_c/han/data/ImageNet_256x256/val/'
     opt['crop_size'] = 256
     extract_subimages(opt)
 
