@@ -281,7 +281,7 @@ def read_img_worker(path, key, compress_level, lr=False):
     
     # If lr is True, then downsample from groundtruth images using duf_downsample
     if lr:
-        img = duf_downsample(torch.from_numpy(img).unsqueeze(0), scale=4).squeeze().numpy()
+        img = duf_downsample(torch.from_numpy(img).permute(2,0,1).unsqueeze(0), scale=4).squeeze().permute(1,2,0).numpy()
 
     if img.ndim == 2:
         h, w = img.shape
