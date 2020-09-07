@@ -1,6 +1,7 @@
 import cv2
 import lmdb
 import mmcv
+import torch
 import sys
 from multiprocessing import Pool
 from os import path as osp
