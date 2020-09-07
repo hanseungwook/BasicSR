@@ -1,4 +1,5 @@
 import mmcv
+import torch
 from os import path as osp
 
 from basicsr.utils.lmdb import make_lmdb_from_imgs, make_lr_lmdb_from_imgs
