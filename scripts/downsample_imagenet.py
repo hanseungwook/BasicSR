@@ -106,7 +106,7 @@ def worker(path, opt):
     extension = '.png'
 
     # remove the x2, x3, x4 and x8 in the filename for DIV2K
-    img = cv2.imread(path, cv2.IMREAD_COLOR)
+    img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
     
     if img.ndim == 2:
         h, w = img.shape
@@ -118,7 +118,7 @@ def worker(path, opt):
     img = ToTensor()(img)
     downsampled_img = duf_downsample(img.unsqueeze(0), scale=scale).squeeze(0)
     downsampled_img *= 255.0
-    downsampled_img = downsampled_img.numpy()
+    downsampled_img = downsampled_img.numpy().transpose(1,2,0)
 
     cv2.imwrite(
         osp.join(opt['save_folder'],
