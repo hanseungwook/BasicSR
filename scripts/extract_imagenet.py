@@ -73,7 +73,7 @@ def extract_subimages(opt):
     else:
         print(f'Folder {save_folder} already exists. Overwriting.')
 
-    img_list = list(mmcv.scandir(input_folder), recursive=True)
+    img_list = list(mmcv.scandir(input_folder, recursive=True))
     img_list = [osp.join(input_folder, v) for v in img_list]
 
     pbar = ProgressBar(len(img_list))
