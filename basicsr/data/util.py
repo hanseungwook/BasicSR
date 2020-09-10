@@ -227,8 +227,8 @@ def paired_paths_from_folder(folders, keys, filename_tmpl):
     input_folder, gt_folder = folders
     input_key, gt_key = keys
 
-    input_paths = list(mmcv.scandir(input_folder, recursive=True))
-    gt_paths = list(mmcv.scandir(gt_folder, recursive=True))
+    input_paths = list(mmcv.scandir(input_folder))
+    gt_paths = list(mmcv.scandir(gt_folder))
     assert len(input_paths) == len(gt_paths), (
         f'{input_key} and {gt_key} datasets have different number of images: '
         f'{len(input_paths)}, {len(gt_paths)}.')
