@@ -233,6 +233,9 @@ def paired_paths_from_folder(folders, keys, filename_tmpl):
         f'{input_key} and {gt_key} datasets have different number of images: '
         f'{len(input_paths)}, {len(gt_paths)}.')
     paths = []
+
+    progress = 0
+    total = len(gt_paths)
     for gt_path in gt_paths:
         basename, ext = osp.splitext(osp.basename(gt_path))
         input_name = f'{filename_tmpl.format(basename)}{ext}'
@@ -243,6 +246,10 @@ def paired_paths_from_folder(folders, keys, filename_tmpl):
         paths.append(
             dict([(f'{input_key}_path', input_path),
                   (f'{gt_key}_path', gt_path)]))
+        progress += 1
+        if progress % 5000 == 0:
+            print('Path creation progress: {} / {}'.format(progress, total))
+            
     return paths
 
 
