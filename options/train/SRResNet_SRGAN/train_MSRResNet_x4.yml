@@ -42,7 +42,7 @@ datasets:
     dataroot_gt: /disk_c/han/data/ImageNet_lmdb/ImageNet_val_HR.lmdb
     dataroot_lq: /disk_c/han/data/ImageNet_lmdb/ImageNet_val_LR.lmdb
     io_backend:
-      type: disk
+      type: lmdb
 
 # network structures
 network_g:
