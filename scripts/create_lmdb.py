@@ -54,16 +54,28 @@ def create_lmdb_for_imagenet():
         Remember to modify opt configurations according to your settings.
     """
     # HR train images
-    folder_path = '/disk_c/han/data/ImageNet/train/'
+    folder_path = '/disk_c/han/data/ImageNet_256x256/train/'
     lmdb_path = '/disk_c/han/data/ImageNet_lmdb/ImageNet_train_HR.lmdb'
     img_path_list, keys = prepare_keys_imagenet(folder_path)
-    make_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys)
+    make_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys, n_thread=16)
 
     # HR val images
-    folder_path = '/disk_c/han/data/ImageNet/val/'
+    folder_path = '/disk_c/han/data/ImageNet_256x256/val/'
     lmdb_path = '/disk_c/han/data/ImageNet_lmdb/ImageNet_val_HR.lmdb'
     img_path_list, keys = prepare_keys_imagenet(folder_path)
-    make_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys)
+    make_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys, n_thread=16)
+
+    # LR train images
+    folder_path = '/disk_c/han/data/ImageNet_64x64/train/'
+    lmdb_path = '/disk_c/han/data/ImageNet_lmdb/ImageNet_train_LR.lmdb'
+    img_path_list, keys = prepare_keys_imagenet(folder_path)
+    make_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys, n_thread=16)
+
+    # LR val images
+    folder_path = '/disk_c/han/data/ImageNet_64x64/val/'
+    lmdb_path = '/disk_c/han/data/ImageNet_lmdb/ImageNet_val_LR.lmdb'
+    img_path_list, keys = prepare_keys_imagenet(folder_path)
+    make_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys, n_thread=16)
 
 def create_lmdb_for_imagenet_lr():
     """Create lmdb files for DIV2K dataset.
@@ -119,8 +131,8 @@ def prepare_keys_imagenet(folder_path):
     """
     print('Reading image path list ...')
     img_path_list = sorted(
-        list(mmcv.scandir(folder_path, suffix=('', 'jpeg'), recursive=True)))
-    keys = [img_path.split('.jpeg')[0] for img_path in sorted(img_path_list)]
+        list(mmcv.scandir(folder_path, suffix=('', 'png'))))
+    keys = [img_path.split('.png')[0] for img_path in sorted(img_path_list)]
 
     return img_path_list, keys
 
@@ -226,8 +238,8 @@ def prepare_keys_vimeo90k(folder_path, train_list_path, mode):
 
 
 if __name__ == '__main__':
-    # create_lmdb_for_imagenet()
-    create_lmdb_for_imagenet_lr()
+    create_lmdb_for_imagenet()
+    # create_lmdb_for_imagenet_lr()
     # create_lmdb_for_div2k()
     # create_lmdb_for_reds()
     # create_lmdb_for_vimeo90k()
