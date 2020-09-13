@@ -191,7 +191,7 @@ class PerceptualLoss(nn.Module):
         if self.criterion_type == 'l1':
             self.criterion = torch.nn.L1Loss()
         elif self.criterion_type == 'l2':
-            self.criterion = torch.nn.L2loss()
+            self.criterion = torch.nn.MSEloss()
         elif self.criterion_type == 'fro':
             self.criterion = None
         else:
