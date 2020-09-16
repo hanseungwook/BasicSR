@@ -6,6 +6,7 @@ from torch.autograd import Variable
 import sys
 from multiprocessing import Pool
 from os import path as osp
+import pywt
 
 from .util import ProgressBar
 from basicsr.data.util import duf_downsample

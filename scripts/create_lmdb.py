@@ -1,7 +1,6 @@
 import mmcv
 import torch
 from os import path as osp
-import pywt
 
 from basicsr.utils.lmdb import make_lmdb_from_imgs, make_lr_lmdb_from_imgs, make_wt_lmdb_from_imgs
 
