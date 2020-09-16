@@ -580,7 +580,7 @@ def read_img_worker(path, key, compress_level, lr=False, use_wt=False, filters=N
     else:
         h, w, c = img.shape
     
-    if not wt:
+    if not use_wt:
         _, img_byte = cv2.imencode('.png', img,
                                     [cv2.IMWRITE_PNG_COMPRESSION, compress_level])
     # If writing WT patch in bytes, use np tobytes() function
