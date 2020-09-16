@@ -535,7 +535,7 @@ def make_wt_lmdb_from_imgs(data_path,
             h, w, c = shapes[key]
         else:
             _, img_byte, img_shape = read_img_worker(
-                osp.join(data_path, path), key, compress_level, wt=True, filters=filters)
+                osp.join(data_path, path), key, compress_level, use_wt=True, filters=filters)
             h, w, c = img_shape
 
         txn.put(key_byte, img_byte)
@@ -550,7 +550,7 @@ def make_wt_lmdb_from_imgs(data_path,
     print('\nFinish writing lmdb.')
 
 
-def read_img_worker(path, key, compress_level, lr=False, wt=False, filters=None):
+def read_img_worker(path, key, compress_level, lr=False, use_wt=False, filters=None):
     """Read image worker.
 
     Args:
