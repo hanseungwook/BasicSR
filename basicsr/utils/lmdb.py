@@ -570,7 +570,7 @@ def read_img_worker(path, key, compress_level, lr=False, use_wt=False, filters=N
     if lr:
         img = duf_downsample(torch.from_numpy(img).permute(2,0,1).unsqueeze(0), scale=4).squeeze().permute(1,2,0).numpy()
 
-    elif wt:
+    elif use_wt:
         img = torch.from_numpy(img / 255.0).float()
         img = wt(img.permute(2,0,1).unsqueeze(0), filters, levels=3)[:, :, :64, :64].squeeze().numpy()
 
