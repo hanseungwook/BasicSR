@@ -571,11 +571,11 @@ def read_img_worker(path, key, compress_level, lr=False, use_wt=False, filters=N
         img = duf_downsample(torch.from_numpy(img).permute(2,0,1).unsqueeze(0), scale=4).squeeze().permute(1,2,0).numpy()
 
     elif use_wt:
-        try:
-            img = torch.from_numpy(img / 255.0).float()
-            img = wt(img.permute(2,0,1).unsqueeze(0), filters, levels=3)[:, :, :64, :64].squeeze().numpy()
-        except:
-            print(img.shape)
+        img = torch.from_numpy(img / 255.0).float()
+        if img.ndim == 2:
+            img = wt(img.unsqueeze(0).unsqueeze(0), filters, levels=3)[:, :, :64, :64].squeeze().numpy()
+        elif img.ndim == 3:
+            img = wt(img.permute(2,0,1).unsqueeze(0), filters, levels=3)[:, :, :64, :64].squeeze().permute(1,2,0).numpy()
 
     if img.ndim == 2:
         h, w = img.shape
