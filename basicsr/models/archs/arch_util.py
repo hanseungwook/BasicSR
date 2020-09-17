@@ -479,6 +479,6 @@ def mask_outputs_to_img(Y_64, recon_mask_128_all, recon_mask_256_all, inv_filter
         recon_mask_padded[:, :, :128, :128] = recon_mask_128_iwt
         recon_mask = iwt(recon_mask_padded, inv_filters, levels=3)
 
-        return recon_img_128, recon_img, recon_mask
+        return recon_img, recon_mask
 
-    return recon_img_128, recon_img
+    return recon_img
