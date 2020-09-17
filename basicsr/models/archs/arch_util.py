@@ -469,8 +469,8 @@ def mask_outputs_to_img(Y_64, recon_mask_128_all, recon_mask_256_all, inv_filter
     recon_mask_padded[:, :, :128, :128] = recon_mask_128_iwt
     recon_img = iwt(recon_mask_padded, inv_filters, levels=3)
 
-    recon_mask_128_padded = zero_pad(recon_mask_128_iwt, 256, device)
-    recon_img_128 = iwt(recon_mask_128_padded, inv_filters, levels=3)
+    # recon_mask_128_padded = zero_pad(recon_mask_128_iwt, 256, device)
+    # recon_img_128 = iwt(recon_mask_128_padded, inv_filters, levels=3)
 
     if mask:
         recon_mask_128_iwt = collate_patches_to_img(torch.zeros(recon_mask_128_tr_img.shape, device=device), recon_mask_128_tr_img, recon_mask_128_bl_img, recon_mask_128_br_img)
