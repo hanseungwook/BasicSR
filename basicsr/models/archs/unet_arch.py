@@ -160,7 +160,7 @@ class UNet_Hierarchical(nn.Module):
 
         del Y_64_patches, Y_128_patches
 
-        _, recon_img = arch_util.mask_outputs_to_img(x, recon_mask_128_all, recon_mask_256_all, self.inv_filters, mask=False)
+        recon_img = arch_util.mask_outputs_to_img(x, recon_mask_128_all, recon_mask_256_all, self.inv_filters, mask=False)
 
         return recon_img
 
