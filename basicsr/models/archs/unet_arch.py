@@ -127,7 +127,6 @@ class UNet_NTail_128_Mod(nn.Module):
         return x_out
 
 class UNet_Hierarchical(nn.Module):
-
     def __init__(self):
         super(UNet_Hierarchical, self).__init__()
         self.unet_128 = UNet_NTail_128_Mod(n_channels=12, n_classes=3, n_tails=12, bilinear=True)

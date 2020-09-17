@@ -87,13 +87,13 @@ class VGGFeatureExtractor(nn.Module):
                  requires_grad=False,
                  remove_pooling=False,
                  pooling_stride=2,
-                 use_wt=False,
+                #  use_wt=False,
                  model_path=None):
         super(VGGFeatureExtractor, self).__init__()
 
         self.layer_name_list = layer_name_list
         self.use_input_norm = use_input_norm
-        self.use_wt = use_wt
+        # self.use_wt = use_wt
 
         self.names = NAMES[vgg_type.replace('_bn', '')]
         if 'bn' in vgg_type:
@@ -107,18 +107,18 @@ class VGGFeatureExtractor(nn.Module):
                 max_idx = idx
         
         # Regular version
-        if not self.use_wt:
+        if not model_path:
             features = getattr(vgg,
                             vgg_type)(pretrained=True).features[:max_idx + 1]
-        # WT version
+        # Load custom VGG network
         else:
             # Set up WT filters
-            filters = create_filters()
-            inv_filters = create_inv_filters()
-            self.register_buffer('filters', filters)
-            self.register_buffer('inv_filters', inv_filters)
+            # filters = create_filters()
+            # inv_filters = create_inv_filters()
+            # self.register_buffer('filters', filters)
+            # self.register_buffer('inv_filters', inv_filters)
 
-            self.wt_transform = lambda vimg: wt_hf(vimg, filters, inv_filters, levels=2)
+            # self.wt_transform = lambda vimg: wt_hf(vimg, filters, inv_filters, levels=2)
 
             model = getattr(vgg, vgg_type)(pretrained=False)
             checkpoint = torch.load(model_path)
@@ -171,8 +171,8 @@ class VGGFeatureExtractor(nn.Module):
         if self.use_input_norm:
             x = (x - self.mean) / self.std
 
-        if self.use_wt:
-            x = self.wt_transform(x)
+        # if self.use_wt:
+        #     x = self.wt_transform(x)
 
         output = {}
         for key, layer in self.vgg_net._modules.items():

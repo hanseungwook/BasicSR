@@ -1,10 +1,9 @@
 # Modified SRResNet w/o BN from:
 # Photo-Realistic Single Image Super-Resolution Using a Generative Adversarial Network
-# Use perceptual loss before ReLU as ESRGAN does
 
 # general settings
-name: 004_MSRGAN_x4_f64b16_ImageNet_400k_B16G2_wandb
-model_type: SRGANModel
+name: 001_MUNet_GAN_x4_f64b16_ImageNet_1000k_B16G2_wandb
+model_type: UNetGANModel
 scale: 4
 num_gpu: 2  # set num_gpu: 0 for cpu mode
 manual_seed: 0
@@ -13,20 +12,19 @@ manual_seed: 0
 datasets:
   train:
     name: ImageNet
-    type: PairedImageDataset
+    type: PairedImageWTDataset
     dataroot_gt: /disk_c/han/data/ImageNet_lmdb/ImageNet_train_HR.lmdb
-    dataroot_lq: /disk_c/han/data/ImageNet_lmdb/ImageNet_train_LR.lmdb
-    # (for lmdb)
-    # dataroot_gt: datasets/DIV2K/DIV2K_train_HR_sub.lmdb
-    # dataroot_lq: datasets/DIV2K/DIV2K_train_LR_bicubic_X4_sub.lmdb
+    dataroot_lq: /disk_c/han/data/ImageNet_lmdb/ImageNet_train_WT.lmdb
     filename_tmpl: '{}'
     io_backend:
       type: lmdb
-      # (for lmdb)
 
     gt_size: 256
     use_flip: true
     use_rot: true
+
+    # Transforming output images (normalization + wt_hf) for loss calculation
+    output_transform_for_loss: true
 
     # data loader
     use_shuffle: true
@@ -37,21 +35,16 @@ datasets:
 
   val:
     name: ImageNet
-    type: PairedImageDataset
+    type: PairedImageWTDataset
     dataroot_gt: /disk_c/han/data/ImageNet_lmdb/ImageNet_val_HR.lmdb
-    dataroot_lq: /disk_c/han/data/ImageNet_lmdb/ImageNet_val_LR.lmdb
+    dataroot_lq: /disk_c/han/data/ImageNet_lmdb/ImageNet_val_WT.lmdb
     io_backend:
       type: lmdb
 
 # network structures
 network_g:
-  type: MSRResNet
-  num_in_ch: 3
-  num_out_ch: 3
-  num_feat: 64
-  num_block: 16
-  upscale: 4
-
+  type: UNet_Hierachical
+  
 network_d:
   type: VGGStyleDiscriminator128
   num_in_ch: 3
@@ -59,8 +52,7 @@ network_d:
 
 # path
 path:
-# Fix this pretrained model load
-  pretrain_model_g: experiments/001_MSRResNet_x4_f64b16_ImageNet_1000k_B16G2_wandb/models/net_g_155000.pth
+  pretrain_model_g: /disk_c/han/data/models/unet_g_pretrained_mse.pth
   strict_load: true
   resume_state: ~
 
@@ -71,25 +63,17 @@ train:
     lr: !!float 1e-4
     weight_decay: 0
     betas: [0.9, 0.99]
-  optim_d:
-    type: Adam
-    lr: !!float 1e-4
-    weight_decay: 0
-    betas: [0.9, 0.99]
 
   scheduler:
-    type: MultiStepLR
-    milestones: [50000, 100000, 200000, 300000]
-    gamma: 0.5
+    type: CosineAnnealingRestartLR
+    periods: [250000, 250000, 250000, 250000]
+    restart_weights: [1, 1, 1, 1]
+    eta_min: !!float 1e-7
 
-  total_iter: 400000
+  total_iter: 1000000
   warmup_iter: -1  # no warm up
 
   # losses
-  # pixel_opt:
-  #   type: L1Loss
-  #   loss_weight: !!float 1e-2
-  #   reduction: mean
   perceptual_opt:
     type: PerceptualLoss
     layer_weights:
@@ -100,15 +84,13 @@ train:
     style_weight: 0
     norm_img: false
     criterion: l2
+    model_path: ~
   gan_opt:
     type: GANLoss
     gan_type: vanilla
     real_label_val: 1.0
     fake_label_val: 0.0
     loss_weight: !!float 1e-3
-
-  net_d_iters: 1
-  net_d_init_iters: 0
 
 # validation settings
 val:
@@ -127,7 +109,7 @@ logger:
   save_checkpoint_freq: !!float 5e3
   use_tb_logger: true
   wandb:
-    project: basicsr-sr-gan
+    project: basicsr-sr-resnet
     resume_id: ~
 
 # dist training settings

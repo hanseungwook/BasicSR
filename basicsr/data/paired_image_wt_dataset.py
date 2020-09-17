@@ -40,7 +40,7 @@ class PairedImageWTDataset(data.Dataset):
     """
 
     def __init__(self, opt):
-        super(PairedImageDataset, self).__init__()
+        super(PairedImageWTDataset, self).__init__()
         self.opt = opt
         # file client (io backend)
         self.file_client = None

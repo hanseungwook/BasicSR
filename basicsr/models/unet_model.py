@@ -37,6 +37,30 @@ class UNetModel(BaseModel):
         self.net_g.train()
         train_opt = self.opt['train']
 
+        self.output_transform_for_loss = False
+
+        # define variables for output transformation (normalization + wt_hf) for calculating loss
+        if train_opt.get('output_transform_for_loss'):
+            self.output_transform_for_loss = True    
+
+            # Normalization buffers
+            # the mean is for image with range [0, 1]
+            self.register_buffer(
+                'mean',
+                torch.Tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1))
+            # the std is for image with range [0, 1]
+            self.register_buffer(
+                'std',
+                torch.Tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1))
+
+            # WT filters/transformation
+            filters = create_filters()
+            inv_filters = create_inv_filters()
+            self.register_buffer('filters', filters)
+            self.register_buffer('inv_filters', inv_filters)
+
+            self.wt_transform = lambda vimg: wt_hf(vimg, filters, inv_filters, levels=2)
+
         # define losses
         if train_opt.get('pixel_opt'):
             pixel_type = train_opt['pixel_opt'].pop('type')
@@ -88,6 +112,14 @@ class UNetModel(BaseModel):
     def optimize_parameters(self, current_iter):
         self.optimizer_g.zero_grad()
         self.output = self.net_g(self.lq)
+        
+        # Output transformation (normalization + wt_hf) -- both reconstructed & ground truth
+        if self.output_transform_for_loss:
+            self.output = (self.output - self.mean) / self.std
+            self.output = self.wt_transform(self.output)
+
+            self.gt = (self.gt - self.mean) / self.std
+            self.gt = self.wt_transform(self.gt)
 
         l_total = 0
         loss_dict = OrderedDict()

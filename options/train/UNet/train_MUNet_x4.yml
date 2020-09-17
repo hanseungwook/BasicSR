@@ -3,6 +3,7 @@
 
 # general settings
 name: 001_MUNet_x4_f64b16_ImageNet_1000k_B16G2_wandb
+# TODO: FIX this
 model_type: UNetModel
 scale: 4
 num_gpu: 2  # set num_gpu: 0 for cpu mode
@@ -23,6 +24,9 @@ datasets:
     gt_size: 256
     use_flip: true
     use_rot: true
+
+    # Transforming output images (normalization + wt_hf) for loss calculation
+    output_transform_for_loss: true
 
     # data loader
     use_shuffle: true
@@ -45,7 +49,7 @@ network_g:
 
 # path
 path:
-  pretrain_model_g: ~
+  pretrain_model_g: /disk_c/han/data/models/unet_g_pretrained_mse.pth
   strict_load: true
   resume_state: ~
 
@@ -76,7 +80,7 @@ train:
     perceptual_weight: 1.0
     norm_img: false
     criterion: l2
-    use_wt: true
+    # use_wt: true
     model_path: ~
 
 # validation settings
