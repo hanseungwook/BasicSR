@@ -17,7 +17,7 @@ class UNetModel(BaseModel):
     """Base SR model for single image super-resolution."""
 
     def __init__(self, opt):
-        super(SRModel, self).__init__(opt)
+        super(UNetModel, self).__init__(opt)
 
         # define network
         self.net_g = networks.define_net_g(deepcopy(opt['network_g']))
