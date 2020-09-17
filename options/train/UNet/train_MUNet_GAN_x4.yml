@@ -109,7 +109,7 @@ logger:
   save_checkpoint_freq: !!float 5e3
   use_tb_logger: true
   wandb:
-    project: basicsr-sr-resnet
+    project: basicsr-unet-gan
     resume_id: ~
 
 # dist training settings
