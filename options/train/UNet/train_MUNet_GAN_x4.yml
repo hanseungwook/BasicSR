@@ -78,13 +78,13 @@ train:
     type: PerceptualLoss
     layer_weights:
       'conv5_4': 1  # before relu
-    vgg_type: vgg19
+    vgg_type: vgg19_bn
     use_input_norm: true
     perceptual_weight: !!float 6e-3
     style_weight: 0
     norm_img: false
     criterion: l2
-    model_path: /disk_c/han/data/models/vgg19_wt_hf_best.pth
+    model_path: /disk_c/han/data/models/vgg19_bn_wt_hf_best.pth
   gan_opt:
     type: GANLoss
     gan_type: vanilla

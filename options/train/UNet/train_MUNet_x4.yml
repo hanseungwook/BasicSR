@@ -75,7 +75,7 @@ train:
     type: PerceptualLoss
     layer_weights:
       'conv5_4': 1  # before relu
-    vgg_type: vgg19
+    vgg_type: vgg19_bn
     use_input_norm: true
     perceptual_weight: 1.0
     norm_img: false
