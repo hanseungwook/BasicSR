@@ -176,7 +176,9 @@ class PerceptualLoss(nn.Module):
                  perceptual_weight=1.0,
                  style_weight=0.,
                  norm_img=False,
-                 criterion='l1'):
+                 criterion='l1',
+                 use_wt=False,
+                 model_path=None):
         super(PerceptualLoss, self).__init__()
         self.norm_img = norm_img
         self.perceptual_weight = perceptual_weight
@@ -185,7 +187,9 @@ class PerceptualLoss(nn.Module):
         self.vgg = VGGFeatureExtractor(
             layer_name_list=list(layer_weights.keys()),
             vgg_type=vgg_type,
-            use_input_norm=use_input_norm)
+            use_input_norm=use_input_norm,
+            use_wt=use_wt,
+            model_path=model_path)
 
         self.criterion_type = criterion
         if self.criterion_type == 'l1':

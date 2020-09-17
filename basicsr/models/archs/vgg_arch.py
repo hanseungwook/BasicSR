@@ -3,6 +3,9 @@ from collections import OrderedDict
 from torch import nn as nn
 from torchvision.models import vgg as vgg
 
+from basicsr.models.archs.arch_util import create_filters, create_inv_filters, wt_hf
+
+
 NAMES = {
     'vgg11': [
         'conv1_1', 'relu1_1', 'pool1', 'conv2_1', 'relu2_1', 'pool2',
@@ -73,6 +76,8 @@ class VGGFeatureExtractor(nn.Module):
         remove_pooling (bool): If true, the max pooling operations in VGG net
             will be removed. Default: False.
         pooling_stride (int): The stride of max pooling operation. Default: 2.
+        use_wt (bool): If true, use WT version of VGG19
+        model_path (str): Path to VGG network/weights to load from
     """
 
     def __init__(self,
@@ -81,11 +86,14 @@ class VGGFeatureExtractor(nn.Module):
                  use_input_norm=True,
                  requires_grad=False,
                  remove_pooling=False,
-                 pooling_stride=2):
+                 pooling_stride=2,
+                 use_wt=False,
+                 model_path=None):
         super(VGGFeatureExtractor, self).__init__()
 
         self.layer_name_list = layer_name_list
         self.use_input_norm = use_input_norm
+        self.use_wt = use_wt
 
         self.names = NAMES[vgg_type.replace('_bn', '')]
         if 'bn' in vgg_type:
@@ -97,8 +105,29 @@ class VGGFeatureExtractor(nn.Module):
             idx = self.names.index(v)
             if idx > max_idx:
                 max_idx = idx
-        features = getattr(vgg,
-                           vgg_type)(pretrained=True).features[:max_idx + 1]
+        
+        # Regular version
+        if not self.use_wt:
+            features = getattr(vgg,
+                            vgg_type)(pretrained=True).features[:max_idx + 1]
+        # WT version
+        else:
+            # Set up WT filters
+            filters = create_filters()
+            inv_filters = create_inv_filters()
+            self.register_buffer('filters', filters)
+            self.register_buffer('inv_filters', inv_filters)
+
+            self.wt_transform = lambda vimg: wt_hf(vimg, filters, inv_filters, levels=2)
+
+            model = getattr(vgg, vgg_type)(pretrained=False)
+            checkpoint = torch.load(model_path)
+            model.load_state_dict(checkpoint['model'])
+            print('Loaded VGG-19 model weights')
+            del checkpoint
+
+            features = model.features[:max_idx + 1]
+
 
         modified_net = OrderedDict()
         for k, v in zip(self.names, features):
@@ -141,6 +170,9 @@ class VGGFeatureExtractor(nn.Module):
 
         if self.use_input_norm:
             x = (x - self.mean) / self.std
+
+        if self.use_wt:
+            x = self.wt_transform(x)
 
         output = {}
         for key, layer in self.vgg_net._modules.items():

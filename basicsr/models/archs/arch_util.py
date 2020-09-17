@@ -8,6 +8,7 @@ from torch.nn.modules.batchnorm import _BatchNorm
 from basicsr.models.ops.dcn import (ModulatedDeformConvPack,
                                     modulated_deform_conv)
 from basicsr.utils import get_root_logger
+import pywt
 
 
 @torch.no_grad()
@@ -248,3 +249,233 @@ class DCNv2Pack(ModulatedDeformConvPack):
         return modulated_deform_conv(x, offset, mask, self.weight, self.bias,
                                      self.stride, self.padding, self.dilation,
                                      self.groups, self.deformable_groups)
+
+# Creating filters for WT
+def create_filters(wt_fn='bior2.2'):
+    w = pywt.Wavelet(wt_fn)
+
+    dec_hi = torch.Tensor(w.dec_hi[::-1])
+    dec_lo = torch.Tensor(w.dec_lo[::-1])
+
+    filters = torch.stack([dec_lo.unsqueeze(0)*dec_lo.unsqueeze(1),
+                           dec_lo.unsqueeze(0)*dec_hi.unsqueeze(1),
+                           dec_hi.unsqueeze(0)*dec_lo.unsqueeze(1),
+                           dec_hi.unsqueeze(0)*dec_hi.unsqueeze(1)], dim=0)
+
+    return filters
+
+def create_inv_filters(wt_fn='bior2.2'):
+    w = pywt.Wavelet(wt_fn)
+
+    rec_hi = torch.Tensor(w.rec_hi)
+    rec_lo = torch.Tensor(w.rec_lo)
+    
+    inv_filters = torch.stack([rec_lo.unsqueeze(0)*rec_lo.unsqueeze(1),
+                               rec_lo.unsqueeze(0)*rec_hi.unsqueeze(1),
+                               rec_hi.unsqueeze(0)*rec_lo.unsqueeze(1),
+                               rec_hi.unsqueeze(0)*rec_hi.unsqueeze(1)], dim=0)
+
+    return inv_filters
+
+
+# Zeroing out the first patch's portion of the mask
+def zero_mask(mask, num_iwt, cur_iwt):
+    padded = torch.zeros(mask.shape, device=mask.device)
+    h = mask.shape[2]
+
+    inner_patch_h0 = h // (np.power(2, num_iwt-cur_iwt+1))
+    inner_patch_w0 = h // (np.power(2, num_iwt-cur_iwt+1))
+
+    if len(mask.shape) == 3:
+        padded[:, inner_patch_h0:, :] = mask[:, inner_patch_h0:, :]
+        padded[:, :inner_patch_h0, inner_patch_w0:] = mask[:, :inner_patch_h0, inner_patch_w0:]
+    elif len(mask.shape) == 4:
+        padded[:, :, inner_patch_h0:, :] = mask[:, :, inner_patch_h0:, :]
+        padded[:, :, :inner_patch_h0, inner_patch_w0:] = mask[:, :, :inner_patch_h0, inner_patch_w0:]
+    
+    return padded
+
+
+# Create padding on patch so that this patch is formed into a square image with other patches as 0
+# 3 x 128 x 128 => 3 x target_dim x target_dim
+def zero_pad(img, target_dim, device='cpu'):
+    batch_size = img.shape[0]
+    num_channels = img.shape[1]
+    padded_img = torch.zeros((batch_size, num_channels, target_dim, target_dim), device=device)
+    padded_img[:, :, :img.shape[2], :img.shape[3]] = img.to(device)
+    
+    return padded_img
+
+
+def wt(vimg, filters, levels=1):
+    bs = vimg.shape[0]
+    h = vimg.size(2)
+    w = vimg.size(3)
+    vimg = vimg.reshape(-1, 1, h, w)
+    padded = torch.nn.functional.pad(vimg,(2,2,2,2))
+    res = torch.nn.functional.conv2d(padded, Variable(filters[:,None]),stride=2)
+    if levels>1:
+        res[:,:1] = wt(res[:,:1], filters, levels-1)
+        res[:,:1,32:,:] = res[:,:1,32:,:]*1.
+        res[:,:1,:,32:] = res[:,:1,:,32:]*1.
+        res[:,1:] = res[:,1:]*1.
+    res = res.view(-1,2,h//2,w//2).transpose(1,2).contiguous().view(-1,1,h,w)
+
+    return res.reshape(bs, -1, h, w)
+
+
+def iwt(vres, inv_filters, levels=1):
+    bs = vres.shape[0]
+    h = vres.size(2)
+    w = vres.size(3)
+    vres = vres.reshape(-1, 1, h, w)
+    res = vres.contiguous().view(-1, h//2, 2, w//2).transpose(1, 2).contiguous().view(-1, 4, h//2, w//2).clone()
+    if levels > 1:
+        res[:,:1] = iwt(res[:,:1], inv_filters, levels=levels-1)
+    res = torch.nn.functional.conv_transpose2d(res, Variable(inv_filters[:,None]),stride=2)
+    res = res[:,:,2:-2,2:-2] #removing padding
+
+    return res.reshape(bs, -1, h, w)
+    
+
+# Returns IWT of img with only TL patch (low frequency) zero-ed out
+def wt_hf(vimg, filters, inv_filters, levels=1):
+    # Apply WT
+    wt_img = wt(vimg, filters, levels)
+
+    # Zero out TL patch
+    wt_img_hf = zero_mask(wt_img, levels, 1)
+
+    # Apply IWT
+    iwt_img_hf = iwt(wt_img_hf, inv_filters, levels)
+
+    return iwt_img_hf
+
+def get_3masks(img, mask_dim):
+    tr = img[:, :, :mask_dim, mask_dim:]
+    bl = img[:, :, mask_dim:, :mask_dim]
+    br = img[:, :, mask_dim:, mask_dim:]
+    
+    return tr.squeeze(), bl.squeeze(), br.squeeze()
+
+
+# Gets 4 masks in order of top-left, top-right, bottom-left, and bottom-right quadrants
+def get_4masks(img, mask_dim):
+    tl = img[:, :, :mask_dim, :mask_dim]
+    tr = img[:, :, :mask_dim, mask_dim:]
+    bl = img[:, :, mask_dim:, :mask_dim]
+    br = img[:, :, mask_dim:, mask_dim:]
+    
+    return tl, tr, bl, br
+
+# Splits 3 masks collated channel-wise
+def split_masks_from_channels(data):
+    nc_mask = data.shape[1] // 3
+    
+    return data[:, :nc_mask, :, :], data[:, nc_mask:2*nc_mask, :, :], data[:, 2*nc_mask:, :, :]
+
+def collate_patches_to_img(tl, tr, bl, br, device='cpu'):
+    bs = tl.shape[0]
+    c = tl.shape[1]
+    h = tl.shape[2]
+    w = tl.shape[3]
+    
+    frame = torch.empty((bs, c, 2*h, 2*w), device=device)
+    frame[:, :, :h, :w] = tl.to(device)
+    frame[:, :, :h, w:] = tr.to(device)
+    frame[:, :, h:, :w] = bl.to(device)
+    frame[:, :, h:, w:] = br.to(device)
+    
+    return frame
+
+# Assumes four patches concatenated channel-wise and converts into image
+def collate_channels_to_img(img_channels, device='cpu'):
+    bs = img_channels.shape[0]
+    c = img_channels.shape[1] // 4
+    h = img_channels.shape[2]
+    w = img_channels.shape[3]
+    
+    img = collate_patches_to_img(img_channels[:,:c], img_channels[:,c:2*c], img_channels[:, 2*c:3*c], img_channels[:, 3*c:], device)
+    
+    return img
+
+# Assumes 16 patches concatenated channel-wise and converts into image
+def collate_16_channels_to_img(img_channels, device='cpu'):
+    bs = img_channels.shape[0]
+    c = img_channels.shape[1] // 4
+    h = img_channels.shape[2]
+    w = img_channels.shape[3]
+    
+    tl = collate_channels_to_img(img_channels[:, :c], device)
+    tr = collate_channels_to_img(img_channels[:, c:2*c], device)
+    bl = collate_channels_to_img(img_channels[:, 2*c:3*c], device)
+    br = collate_channels_to_img(img_channels[:, 3*c:], device)
+    
+    img = collate_patches_to_img(tl, tr, bl, br, device)
+    
+    return img
+
+
+def apply_iwt_quads_128(img_quad, inv_filters):
+    h = img_quad.shape[2] // 2
+    w = img_quad.shape[3] // 2
+    
+    img_quad[:, :, :h, w:] = iwt(img_quad[:, :, :h, w:], inv_filters, levels=1)
+    img_quad[:, :, h:, :w] = iwt(img_quad[:, :, h:, :w], inv_filters, levels=1)
+    img_quad[:, :, h:, w:] = iwt(img_quad[:, :, h:, w:], inv_filters, levels=1)
+    
+    img_quad = iwt(img_quad, inv_filters, levels=2)
+    
+    return img_quad
+
+# Function for arranging two levels of outputs (128, 256) into an image
+# Outputs two reconstructions -- one with only 128 level and another with both 128 and 256 level masks
+# If mask option is True, then add a fully IWT'ed reconstructed mask
+def mask_outputs_to_img(Y_64, recon_mask_128_all, recon_mask_256_all, inv_filters, mask=False): 
+    device = recon_mask_128_all.device
+    
+    # Split 128 and 256 level outputs into quadrants
+    recon_mask_128_tr, recon_mask_128_bl, recon_mask_128_br = split_masks_from_channels(recon_mask_128_all)
+    recon_mask_256_tr, recon_mask_256_bl, recon_mask_256_br = split_masks_from_channels(recon_mask_256_all)
+
+    # Collate all masks constructed by first 128 level
+    recon_mask_128_tr_img = collate_channels_to_img(recon_mask_128_tr, device)
+    recon_mask_128_bl_img = collate_channels_to_img(recon_mask_128_bl, device)   
+    recon_mask_128_br_img = collate_channels_to_img(recon_mask_128_br, device)
+    
+    recon_mask_128_tr_img = iwt(recon_mask_128_tr_img, inv_filters, levels=1)
+    recon_mask_128_bl_img = iwt(recon_mask_128_bl_img, inv_filters, levels=1)
+    recon_mask_128_br_img = iwt(recon_mask_128_br_img, inv_filters, levels=1) 
+    
+    recon_mask_128_iwt = collate_patches_to_img(Y_64, recon_mask_128_tr_img, recon_mask_128_bl_img, recon_mask_128_br_img)
+
+    # Collate all masks concatenated by channel to an image (slice up and put into a square)
+    recon_mask_256_tr_img = collate_16_channels_to_img(recon_mask_256_tr, device)
+    recon_mask_256_bl_img = collate_16_channels_to_img(recon_mask_256_bl, device)   
+    recon_mask_256_br_img = collate_16_channels_to_img(recon_mask_256_br, device)
+
+    recon_mask_256 = collate_patches_to_img(torch.zeros(recon_mask_256_tr_img.shape, device=device), recon_mask_256_tr_img, recon_mask_256_bl_img, recon_mask_256_br_img)
+    
+    recon_mask_256_tr_img = apply_iwt_quads_128(recon_mask_256_tr_img, inv_filters)
+    recon_mask_256_bl_img = apply_iwt_quads_128(recon_mask_256_bl_img, inv_filters)
+    recon_mask_256_br_img = apply_iwt_quads_128(recon_mask_256_br_img, inv_filters)
+    
+    recon_mask_256_iwt = collate_patches_to_img(torch.zeros(recon_mask_256_tr_img.shape, device=device), recon_mask_256_tr_img, recon_mask_256_bl_img, recon_mask_256_br_img)
+    
+    recon_mask_padded = zero_pad(recon_mask_256_iwt, 256, device)
+    recon_mask_padded[:, :, :128, :128] = recon_mask_128_iwt
+    recon_img = iwt(recon_mask_padded, inv_filters, levels=3)
+
+    recon_mask_128_padded = zero_pad(recon_mask_128_iwt, 256, device)
+    recon_img_128 = iwt(recon_mask_128_padded, inv_filters, levels=3)
+
+    if mask:
+        recon_mask_128_iwt = collate_patches_to_img(torch.zeros(recon_mask_128_tr_img.shape, device=device), recon_mask_128_tr_img, recon_mask_128_bl_img, recon_mask_128_br_img)
+        recon_mask_256_iwt = collate_patches_to_img(torch.zeros(recon_mask_256_tr_img.shape, device=device), recon_mask_256_tr_img, recon_mask_256_bl_img, recon_mask_256_br_img)
+        recon_mask_padded = zero_pad(recon_mask_256_iwt, 256, device)
+        recon_mask_padded[:, :, :128, :128] = recon_mask_128_iwt
+        recon_mask = iwt(recon_mask_padded, inv_filters, levels=3)
+
+        return recon_img_128, recon_img, recon_mask
+
+    return recon_img_128, recon_img
