@@ -150,12 +150,15 @@ class UNet_Hierarchical(nn.Module):
 
         # Run through model 128
         recon_mask_128_all = self.unet_128(Y_64_patches)
+        
         recon_mask_128_tr, recon_mask_128_bl, recon_mask_128_br = arch_util.split_masks_from_channels(recon_mask_128_all)
 
         Y_128_patches = torch.cat((Y_64_patches, recon_mask_128_tr, recon_mask_128_bl, recon_mask_128_br), dim=1)
 
         # Run through 128 mask network and get reconstructed image
         recon_mask_256_all = self.unet_256(Y_128_patches)
+
+        del Y_64_patches, Y_128_patches
 
         _, recon_img = arch_util.mask_outputs_to_img(x, recon_mask_128_all, recon_mask_256_all, self.inv_filters, mask=False)
 

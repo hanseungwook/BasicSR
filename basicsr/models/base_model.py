@@ -257,6 +257,7 @@ class BaseModel():
                 load_net.pop(k)
         self._print_different_keys_loading(net, load_net, strict)
         net.load_state_dict(load_net, strict=strict)
+        del load_net
 
     @master_only
     def save_training_state(self, epoch, current_iter):

@@ -382,10 +382,12 @@ def collate_patches_to_img(tl, tr, bl, br, device='cpu'):
     w = tl.shape[3]
     
     frame = torch.empty((bs, c, 2*h, 2*w), device=device)
-    frame[:, :, :h, :w] = tl.to(device)
-    frame[:, :, :h, w:] = tr.to(device)
-    frame[:, :, h:, :w] = bl.to(device)
-    frame[:, :, h:, w:] = br.to(device)
+    frame[:, :, :h, :w] = tl
+    frame[:, :, :h, w:] = tr
+    frame[:, :, h:, :w] = bl
+    frame[:, :, h:, w:] = br
+
+    del tl, tr, bl, br
     
     return frame
 
