@@ -111,6 +111,7 @@ class UNetGANModel(UNetModel):
         self.optimizer_g.zero_grad()
         self.output = self.net_g(self.lq)
         
+        # Output and GT are reconstructed and real images, respectively
         # Output transformation (normalization + wt_hf) -- both reconstructed & ground truth
         if self.output_transform_for_loss:
             self.output = (self.output - self.mean) / self.std
