@@ -157,7 +157,7 @@ class UNet_Hierarchical(nn.Module):
         # Run through 128 mask network and get reconstructed image
         recon_mask_256_all = self.unet_256(Y_128_patches)
 
-        _, recon_img = arch_util.mask_outputs_to_img(Y_64, recon_mask_128_all, recon_mask_256_all, self.inv_filters, mask=False)
+        _, recon_img = arch_util.mask_outputs_to_img(x, recon_mask_128_all, recon_mask_256_all, self.inv_filters, mask=False)
 
         return recon_img
 
