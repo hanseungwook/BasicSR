@@ -114,10 +114,10 @@ class UNetGANModel(UNetModel):
         # Output and GT are reconstructed and real images, respectively
         # Output transformation (normalization + wt_hf) -- both reconstructed & ground truth
         if self.output_transform_for_loss:
-            self.output = (self.output - self.mean) / self.std
+            # self.output = (self.output - self.mean) / self.std
             self.output = self.wt_transform(self.output)
 
-            self.gt = (self.gt - self.mean) / self.std
+            # self.gt = (self.gt - self.mean) / self.std
             self.gt = self.wt_transform(self.gt)
 
         l_g_total = 0
