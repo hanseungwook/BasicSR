@@ -321,7 +321,7 @@ def wt(vimg, filters, levels=1):
         res[:,:1,:,32:] = res[:,:1,:,32:]*1.
         res[:,1:] = res[:,1:]*1.
     res = res.view(-1,2,h//2,w//2).transpose(1,2).contiguous().view(-1,1,h,w)
-
+    
     return res.reshape(bs, -1, h, w)
 
 
