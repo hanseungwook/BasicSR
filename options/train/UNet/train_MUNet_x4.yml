@@ -45,7 +45,7 @@ datasets:
 
 # network structures
 network_g:
-  type: UNet_Hierachical
+  type: UNet_Hierarchical
 
 # path
 path:
