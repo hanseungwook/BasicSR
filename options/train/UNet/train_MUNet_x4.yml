@@ -81,7 +81,7 @@ train:
     norm_img: false
     criterion: l2
     # use_wt: true
-    model_path: /disk_c/han/data/models/vgg19_wt_hf_best.pth
+    model_path: /disk_c/han/data/models/vgg19_bn_wt_hf_best.pth
 
 # validation settings
 val:
