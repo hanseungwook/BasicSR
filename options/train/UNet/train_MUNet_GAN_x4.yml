@@ -84,7 +84,7 @@ train:
       'conv5_4': 1  # before relu
     vgg_type: vgg19_bn
     use_input_norm: false
-    perceptual_weight: !!float 6e-3
+    perceptual_weight: 1
     style_weight: 0
     norm_img: false
     criterion: l2
