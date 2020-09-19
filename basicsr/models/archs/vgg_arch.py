@@ -143,6 +143,8 @@ class VGGFeatureExtractor(nn.Module):
                 modified_net[k] = v
 
         self.vgg_net = nn.Sequential(modified_net)
+        # To remove stochasticity from BN layers if included
+        self.vgg_net.eval()
 
         if not requires_grad:
             for param in self.parameters():
