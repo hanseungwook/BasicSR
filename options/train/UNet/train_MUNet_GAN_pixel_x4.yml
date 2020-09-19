@@ -2,7 +2,7 @@
 # Photo-Realistic Single Image Super-Resolution Using a Generative Adversarial Network
 
 # general settings
-name: 001_MUNet_GAN_x4_f64b16_ImageNet_1000k_B16G2_wandb
+name: 001_MUNet_GAN_pixel_x4_f64b16_ImageNet_1000k_B16G2_wandb
 model_type: UNetGANModel
 scale: 4
 num_gpu: 2  # set num_gpu: 0 for cpu mode
@@ -52,11 +52,12 @@ network_d:
 
 # path
 path:
-  pretrain_model_g: /disk_c/han/BasicSR/experiments/001_MUNet_GAN_x4_f64b16_ImageNet_1000k_B16G2_wandb/models/net_g_5000.pth
-  pretrain_model_d: /disk_c/han/BasicSR/experiments/001_MUNet_GAN_x4_f64b16_ImageNet_1000k_B16G2_wandb/models/net_d_5000.pth
-  # pretrain_model_g: /disk_c/han/data/models/unet_g_pretrained_mse.pth
+  # pretrain_model_g: /disk_c/han/BasicSR/experiments/001_MUNet_GAN_x4_f64b16_ImageNet_1000k_B16G2_wandb/models/net_g_5000.pth
+  # pretrain_model_d: /disk_c/han/BasicSR/experiments/001_MUNet_GAN_x4_f64b16_ImageNet_1000k_B16G2_wandb/models/net_d_5000.pth
+  pretrain_model_g: /disk_c/han/data/models/unet_g_pretrained_mse.pth
   strict_load: true
-  resume_state: /disk_c/han/BasicSR/experiments/001_MUNet_GAN_x4_f64b16_ImageNet_1000k_B16G2_wandb/training_states/5000.state
+  # resume_state: /disk_c/han/BasicSR/experiments/001_MUNet_GAN_x4_f64b16_ImageNet_1000k_B16G2_wandb/training_states/5000.state
+  resume_state: ~
 
 # training settings
 train:
