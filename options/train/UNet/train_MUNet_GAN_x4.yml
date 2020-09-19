@@ -82,7 +82,7 @@ train:
 
   # losses
   pixel_opt:
-    type: L1Loss
+    type: MSELoss
     loss_weight: !!float 1e-2
     reduction: mean
   perceptual_opt:
