@@ -24,7 +24,7 @@ datasets:
     use_rot: true
 
     # Transforming output images (wt_hf) for loss calculation
-    # output_transform_for_loss: true
+    output_transform_for_loss: false
 
     # data loader
     use_shuffle: true
