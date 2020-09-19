@@ -24,7 +24,7 @@ datasets:
     use_rot: true
 
     # Transforming output images (wt_hf) for loss calculation
-    output_transform_for_loss: true
+    # output_transform_for_loss: true
 
     # data loader
     use_shuffle: true
@@ -88,13 +88,12 @@ train:
     type: PerceptualLoss
     layer_weights:
       'conv5_4': 1  # before relu
-    vgg_type: vgg19_bn
-    use_input_norm: false
+    vgg_type: vgg19
+    use_input_norm: true
     perceptual_weight: 1.0
     style_weight: 0
     norm_img: false
-    criterion: l2
-    model_path: /disk_c/han/data/models/vgg19_bn_wt_hf_best.pth
+    criterion: l1
   gan_opt:
     type: GANLoss
     gan_type: vanilla
