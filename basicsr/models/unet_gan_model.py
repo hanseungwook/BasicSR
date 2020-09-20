@@ -35,6 +35,9 @@ class UNetGANModel(UNetModel):
         if train_opt.get('output_transform_for_loss'):
             self.output_transform_for_loss = True    
 
+            self.output_wt = None
+            self.gt_wt = None
+            
             # Normalization buffers
             # the mean is for image with range [0, 1]
             self.register_buffer(
