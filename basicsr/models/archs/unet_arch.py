@@ -133,6 +133,8 @@ class UNet_Hierarchical(nn.Module):
         self.unet_128 = UNet_NTail_128_Mod(n_channels=12, n_classes=3, n_tails=12, bilinear=True)
         self.unet_256 = UNet_NTail_128_Mod(n_channels=48, n_classes=3, n_tails=48, bilinear=True)
 
+        filters = arch_util.create_filters()
+        self.register_buffer('filters', filters)
         inv_filters = arch_util.create_inv_filters()
         self.register_buffer('inv_filters', inv_filters)
 
