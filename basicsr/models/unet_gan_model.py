@@ -33,19 +33,7 @@ class UNetGANModel(UNetModel):
         assert (self.output_transform_for_loss)
 
         # define variables for output transformation (normalization + wt_hf) for calculating loss
-        if output_transform_for_loss:
-            self.output_transform_for_loss = True   
-
-            # Normalization buffers
-            # the mean is for image with range [0, 1]
-            # self.net_g.register_buffer(
-            #     'mean',
-            #     torch.Tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1))
-            # # the std is for image with range [0, 1]
-            # self.net_g.register_buffer(
-            #     'std',
-            #     torch.Tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1))
-
+        if self.output_transform_for_loss:
             # WT filters/transformation
             filters = create_filters()
             inv_filters = create_inv_filters()
