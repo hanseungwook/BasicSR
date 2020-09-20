@@ -10,6 +10,7 @@ from basicsr.models.ops.dcn import (ModulatedDeformConvPack,
                                     modulated_deform_conv)
 from basicsr.utils import get_root_logger
 import pywt
+import numpy as np
 
 
 @torch.no_grad()
