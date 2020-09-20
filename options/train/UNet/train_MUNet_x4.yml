@@ -24,9 +24,6 @@ datasets:
     use_flip: true
     use_rot: true
 
-    # Transforming output images (normalization + wt_hf) for loss calculation
-    output_transform_for_loss: true
-
     # data loader
     use_shuffle: true
     num_worker_per_gpu: 6
@@ -44,7 +41,7 @@ datasets:
 
 # network structures
 network_g:
-  type: UNet_Hierarchical
+  type: SRResNet_WT_Pixel
 
 # path
 path:
@@ -68,6 +65,9 @@ train:
 
   total_iter: 1000000
   warmup_iter: -1  # no warm up
+
+  # Transforming output images (normalization + wt_hf) for loss calculation
+  output_transform_for_loss: true
 
   # losses
   pixel_opt:
