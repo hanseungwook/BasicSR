@@ -69,10 +69,10 @@ class MSRResNet_WT_Pixel(nn.Module):
         # Normalization buffers
         self.register_buffer(
             'shift',
-            torch.Tensor(3.0))
+            torch.Tensor([3.0]))
         self.register_buffer(
             'scale',
-                torch.Tensor(10.0))
+                torch.Tensor([10.0]))
 
     def forward(self, x):
         # IWT x once to get LFC
