@@ -61,7 +61,7 @@ class MSRResNet_WT_Pixel(nn.Module):
             arch_util.default_init_weights(self.upconv2, 0.1)
 
         # WT filter
-        inv_filters = create_inv_filters()
+        inv_filters = arch_util.create_inv_filters()
         self.register_buffer('inv_filters', inv_filters)
         self.iwt = lambda vimg, levels: arch_util.iwt(vimg, inv_filters, levels=levels)
 
@@ -79,6 +79,7 @@ class MSRResNet_WT_Pixel(nn.Module):
 
         # Normalize to (0, 1) range
         x = arch_util.normalize_wt(x, self.shift, self.scale)
+        assert (x.min() >= 0.0 and x.max() <= 1.0)
         
         feat = self.lrelu(self.conv_first(x))
         out = self.body(feat)
