@@ -8,7 +8,7 @@ from os import path as osp
 from basicsr.models import networks as networks
 from basicsr.models.base_model import BaseModel
 from basicsr.utils import ProgressBar, get_root_logger, tensor2img
-from basicsr.models.archs.arch_util import create_filters, create_inv_filters, wt_hf
+from basicsr.models.archs.arch_util import wt_hf
 
 loss_module = importlib.import_module('basicsr.models.losses')
 metric_module = importlib.import_module('basicsr.metrics')
@@ -25,15 +25,6 @@ class UNetModel(BaseModel):
 
         # Define additional buffers
         self.output_transform_for_loss = self.opt['train'].get('output_transform_for_loss')
-
-        # define variables for output transformation (normalization + wt_hf) for calculating loss
-        if self.output_transform_for_loss:
-            # WT filters/transformation
-            filters = create_filters()
-            inv_filters = create_inv_filters()
-            self.net_g.register_buffer('filters', filters)
-            self.net_g.register_buffer('inv_filters', inv_filters)
-
         self.net_g = self.model_to_device(self.net_g)
         self.print_network(self.net_g)
 
@@ -105,10 +96,10 @@ class UNetModel(BaseModel):
         # Output transformation (normalization + wt_hf) -- both reconstructed & ground truth
         if self.output_transform_for_loss:
             # self.output = (self.output - self.mean) / self.std
-            self.output = self.wt_transform(self.output)
+            self.output = wt_hf(self.output, self.net_g.filters, self.net_g.inv_filters, levels=2)
 
             # self.gt = (self.gt - self.mean) / self.std
-            self.gt = self.wt_transform(self.gt)
+            self.gt = wt_hf(self.gt, self.net_g.filters, self.net_g.inv_filters, levels=2)
 
         l_total = 0
         loss_dict = OrderedDict()
