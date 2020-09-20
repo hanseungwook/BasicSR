@@ -29,33 +29,30 @@ class UNetGANModel(UNetModel):
         self.net_g.train()
         self.net_d.train()
 
-        self.output_transform_for_loss = False
-        assert (train_opt.get('output_transform_for_loss') is True)
-        
-        # define variables for output transformation (normalization + wt_hf) for calculating loss
-        if train_opt.get('output_transform_for_loss'):
-            self.output_transform_for_loss = True    
+        self.output_transform_for_loss = train_opt.get('output_transform_for_loss')
+        assert (self.output_transform_for_loss)
 
-            self.output_wt = None
-            self.gt_wt = None
+        # define variables for output transformation (normalization + wt_hf) for calculating loss
+        if output_transform_for_loss:
+            self.output_transform_for_loss = True   
 
             # Normalization buffers
             # the mean is for image with range [0, 1]
-            self.register_buffer(
-                'mean',
-                torch.Tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1))
-            # the std is for image with range [0, 1]
-            self.register_buffer(
-                'std',
-                torch.Tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1))
+            # self.net_g.register_buffer(
+            #     'mean',
+            #     torch.Tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1))
+            # # the std is for image with range [0, 1]
+            # self.net_g.register_buffer(
+            #     'std',
+            #     torch.Tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1))
 
             # WT filters/transformation
             filters = create_filters()
             inv_filters = create_inv_filters()
-            self.register_buffer('filters', filters)
-            self.register_buffer('inv_filters', inv_filters)
+            self.net_g.register_buffer('filters', filters)
+            self.net_g.register_buffer('inv_filters', inv_filters)
 
-            self.wt_transform = lambda vimg: wt_hf(vimg, filters, inv_filters, levels=2)
+            self.wt_transform = lambda vimg: wt_hf(vimg, self.net_g.filters, self.net_g.inv_filters, levels=2)
 
         # define losses
         if train_opt.get('pixel_opt'):
