@@ -93,6 +93,6 @@ class MSRResNet_WT_Pixel(nn.Module):
         out = self.conv_last(self.lrelu(self.conv_hr(out)))
 
         # IWT'ed version of x with zero padding for dimensions
-        base = arch_util.iwt(zero_pad(x, x.shape[3]*self.upscale, x.device), self.inv_filters, 2)
+        base = arch_util.iwt(arch_util.zero_pad(x, x.shape[3]*self.upscale, x.device), self.inv_filters, 2)
         out += base
         return out
