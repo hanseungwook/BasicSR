@@ -30,14 +30,15 @@ class UNetGANModel(UNetModel):
         self.net_d.train()
 
         self.output_transform_for_loss = False
-
+        assert (train_opt.get('output_transform_for_loss') is True)
+        
         # define variables for output transformation (normalization + wt_hf) for calculating loss
         if train_opt.get('output_transform_for_loss'):
             self.output_transform_for_loss = True    
 
             self.output_wt = None
             self.gt_wt = None
-            
+
             # Normalization buffers
             # the mean is for image with range [0, 1]
             self.register_buffer(

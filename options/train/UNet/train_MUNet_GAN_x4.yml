@@ -23,9 +23,6 @@ datasets:
     use_flip: true
     use_rot: true
 
-    # Transforming output images (wt_hf) for loss calculation
-    output_transform_for_loss: true
-
     # data loader
     use_shuffle: true
     num_worker_per_gpu: 6
@@ -79,6 +76,9 @@ train:
 
   total_iter: 400000
   warmup_iter: -1  # no warm up
+
+  # Transforming output images (wt_hf) for loss calculation
+  output_transform_for_loss: true
 
   # losses
   pixel_opt:
