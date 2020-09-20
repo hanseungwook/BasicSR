@@ -5,7 +5,7 @@ from copy import deepcopy
 
 from basicsr.models import networks as networks
 from basicsr.models.unet_model import UNetModel
-from basicsr.models.archs.arch_util import create_filters, create_inv_filters, wt_hf
+from basicsr.models.archs.arch_util import wt_hf
 
 loss_module = importlib.import_module('basicsr.models.losses')
 
@@ -29,17 +29,6 @@ class UNetGANModel(UNetModel):
 
         self.net_g.train()
         self.net_d.train()
-
-        self.output_transform_for_loss = train_opt.get('output_transform_for_loss')
-        assert (self.output_transform_for_loss)
-
-        # define variables for output transformation (normalization + wt_hf) for calculating loss
-        if self.output_transform_for_loss:
-            # WT filters/transformation
-            filters = create_filters()
-            inv_filters = create_inv_filters()
-            self.net_g.register_buffer('filters', filters)
-            self.net_g.register_buffer('inv_filters', inv_filters)
 
         # define losses
         if train_opt.get('pixel_opt'):

@@ -8,6 +8,7 @@ from os import path as osp
 from basicsr.models import networks as networks
 from basicsr.models.base_model import BaseModel
 from basicsr.utils import ProgressBar, get_root_logger, tensor2img
+from basicsr.models.archs.arch_util import create_filters, create_inv_filters, wt_hf
 
 loss_module = importlib.import_module('basicsr.models.losses')
 metric_module = importlib.import_module('basicsr.metrics')
@@ -21,6 +22,18 @@ class UNetModel(BaseModel):
 
         # define network
         self.net_g = networks.define_net_g(deepcopy(opt['network_g']))
+
+        # Define additional buffers
+        self.output_transform_for_loss = self.opt['train'].get('output_transform_for_loss')
+
+        # define variables for output transformation (normalization + wt_hf) for calculating loss
+        if self.output_transform_for_loss:
+            # WT filters/transformation
+            filters = create_filters()
+            inv_filters = create_inv_filters()
+            self.net_g.register_buffer('filters', filters)
+            self.net_g.register_buffer('inv_filters', inv_filters)
+
         self.net_g = self.model_to_device(self.net_g)
         self.print_network(self.net_g)
 
@@ -36,28 +49,6 @@ class UNetModel(BaseModel):
     def init_training_settings(self):
         self.net_g.train()
         train_opt = self.opt['train']
-
-        self.output_transform_for_loss = train_opt.get('output_transform_for_loss')
-
-        # define variables for output transformation (normalization + wt_hf) for calculating loss
-        if self.output_transform_for_loss:    
-            # Normalization buffers
-            # the mean is for image with range [0, 1]
-            self.net_g.register_buffer(
-                'mean',
-                torch.Tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1))
-            # the std is for image with range [0, 1]
-            self.net_g.register_buffer(
-                'std',
-                torch.Tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1))
-
-            # WT filters/transformation
-            filters = create_filters()
-            inv_filters = create_inv_filters()
-            self.register_buffer('filters', filters)
-            self.register_buffer('inv_filters', inv_filters)
-
-            self.wt_transform = lambda vimg: wt_hf(vimg, filters, inv_filters, levels=2)
 
         # define losses
         if train_opt.get('pixel_opt'):
