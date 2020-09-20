@@ -64,7 +64,6 @@ class MSRResNet_WT_Pixel(nn.Module):
         # WT filter
         inv_filters = arch_util.create_inv_filters()
         self.register_buffer('inv_filters', inv_filters)
-        self.iwt = lambda vimg, levels: arch_util.iwt(vimg, inv_filters, levels=levels)
 
         # Normalization buffers
         self.register_buffer(
@@ -76,7 +75,7 @@ class MSRResNet_WT_Pixel(nn.Module):
 
     def forward(self, x):
         # IWT x once to get LFC
-        x = self.iwt(x, 1)
+        x = arch_util.iwt(x, self.inv_filters, 1)
 
         # Normalize to (0, 1) range
         x = arch_util.normalize_wt(x, self.shift, self.scale)
@@ -94,6 +93,6 @@ class MSRResNet_WT_Pixel(nn.Module):
         out = self.conv_last(self.lrelu(self.conv_hr(out)))
 
         # IWT'ed version of x with zero padding for dimensions
-        base = self.iwt(zero_pad(x, x.shape[3]*self.upscale, x.device), 2)
+        base = arch_util.iwt(zero_pad(x, x.shape[3]*self.upscale, x.device), self.inv_filters, 2)
         out += base
         return out
