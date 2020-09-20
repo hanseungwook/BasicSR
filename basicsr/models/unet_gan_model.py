@@ -41,8 +41,6 @@ class UNetGANModel(UNetModel):
             self.net_g.register_buffer('filters', filters)
             self.net_g.register_buffer('inv_filters', inv_filters)
 
-            self.wt_transform = lambda vimg: wt_hf(vimg, self.net_g.filters, self.net_g.inv_filters, levels=2)
-
         # define losses
         if train_opt.get('pixel_opt'):
             pixel_type = train_opt['pixel_opt'].pop('type')
@@ -105,10 +103,10 @@ class UNetGANModel(UNetModel):
         # Output transformation (normalization + wt_hf) -- both reconstructed & ground truth
         if self.output_transform_for_loss:
             # self.output = (self.output - self.mean) / self.std
-            self.output_wt = self.wt_transform(self.output)
+            self.output_wt = wt_hf(self.output, self.net_g.filters, self.net_g.inv_filters, levels=2)
 
             # self.gt = (self.gt - self.mean) / self.std
-            self.gt_wt = self.wt_transform(self.gt)
+            self.gt_wt = wt_hf(self.gt, self.net_g.filters, self.net_g.inv_filters, levels=2)
 
         l_g_total = 0
         loss_dict = OrderedDict()
