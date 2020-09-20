@@ -115,10 +115,10 @@ class UNetGANModel(UNetModel):
         # Output transformation (normalization + wt_hf) -- both reconstructed & ground truth
         if self.output_transform_for_loss:
             # self.output = (self.output - self.mean) / self.std
-            self.output = self.wt_transform(self.output)
+            self.output_wt = self.wt_transform(self.output)
 
             # self.gt = (self.gt - self.mean) / self.std
-            self.gt = self.wt_transform(self.gt)
+            self.gt_wt = self.wt_transform(self.gt)
 
         l_g_total = 0
         loss_dict = OrderedDict()
@@ -126,13 +126,13 @@ class UNetGANModel(UNetModel):
                 and current_iter > self.net_d_init_iters):
             # pixel loss
             if self.cri_pix:
-                l_g_pix = self.cri_pix(self.output, self.gt)
+                l_g_pix = self.cri_pix(self.output_wt, self.gt_wt)
                 l_g_total += l_g_pix
                 loss_dict['l_g_pix'] = l_g_pix
             # perceptual loss
             if self.cri_perceptual:
                 l_g_percep, l_g_style = self.cri_perceptual(
-                    self.output, self.gt)
+                    self.output_wt, self.gt_wt)
                 if l_g_percep is not None:
                     l_g_total += l_g_percep
                     loss_dict['l_g_percep'] = l_g_percep
