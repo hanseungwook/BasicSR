@@ -1,0 +1,112 @@
+# Modified SRResNet w/o BN from:
+# Photo-Realistic Single Image Super-Resolution Using a Generative Adversarial Network
+
+# general settings
+name: 001_MUNet_vgg_x4_f64b16_ImageNet_1000k_B16G2_wandb
+model_type: UNetModel
+scale: 4
+num_gpu: 2  # set num_gpu: 0 for cpu mode
+manual_seed: 0
+
+# dataset and data loader settings
+datasets:
+  train:
+    name: ImageNet
+    type: PairedImageWTDataset
+    dataroot_gt: /disk_c/han/data/ImageNet_lmdb/ImageNet_train_HR.lmdb
+    dataroot_lq: /disk_c/han/data/ImageNet_lmdb/ImageNet_train_WT.lmdb
+    filename_tmpl: '{}'
+    io_backend:
+      type: lmdb
+      # type: disk
+
+    gt_size: 256
+    use_flip: true
+    use_rot: true
+
+    # data loader
+    use_shuffle: true
+    num_worker_per_gpu: 6
+    batch_size_per_gpu: 16
+    dataset_enlarge_ratio: 100
+    prefetch_mode: ~
+
+  val:
+    name: ImageNet
+    type: PairedImageWTDataset
+    dataroot_gt: /disk_c/han/data/ImageNet_lmdb/ImageNet_val_HR.lmdb
+    dataroot_lq: /disk_c/han/data/ImageNet_lmdb/ImageNet_val_WT.lmdb
+    io_backend:
+      type: lmdb
+
+# network structures
+network_g:
+  type: UNet_Hierarchical
+
+# path
+path:
+  pretrain_model_g: /disk_c/han/data/models/unet_g_pretrained_mse.pth
+  strict_load: true
+  resume_state: ~
+
+# training settings
+train:
+  optim_g:
+    type: Adam
+    lr: !!float 1e-4
+    weight_decay: 0
+    betas: [0.9, 0.99]
+
+  scheduler:
+    type: CosineAnnealingRestartLR
+    periods: [250000, 250000, 250000, 250000]
+    restart_weights: [1, 1, 1, 1]
+    eta_min: !!float 1e-7
+
+  total_iter: 1000000
+  warmup_iter: -1  # no warm up
+
+  # Transforming output images (normalization + wt_hf) for loss calculation
+  output_transform_for_loss: true
+
+  # losses
+  pixel_opt:
+    type: WeightedTVLoss
+    loss_weight: !!float 2e-8
+  perceptual_opt:
+    type: PerceptualLoss
+    layer_weights:
+      'conv2_2': 1  # before relu
+    vgg_type: vgg19
+    use_input_norm: false
+    perceptual_weight: 1.0
+    norm_img: false
+    criterion: l1
+    # use_wt: true
+    # model_path: /disk_c/han/data/models/vgg19_bn_wt_hf_nonorm_best.pth
+  
+
+# validation settings
+val:
+  val_freq: !!float 5e3
+  save_img: true
+
+  metrics:
+    psnr: # metric name, can be arbitrary
+      type: calculate_psnr
+      crop_border: 4
+      test_y_channel: false
+
+# logging settings
+logger:
+  print_freq: 100
+  save_checkpoint_freq: !!float 5e3
+  use_tb_logger: true
+  wandb:
+    project: basicsr-unet-vgg
+    resume_id: ~
+
+# dist training settings
+dist_params:
+  backend: nccl
+  port: 29500
