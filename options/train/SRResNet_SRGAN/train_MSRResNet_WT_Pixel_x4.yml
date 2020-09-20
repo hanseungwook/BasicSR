@@ -12,7 +12,7 @@ manual_seed: 0
 datasets:
   train:
     name: ImageNet
-    type: PairedImageDataset
+    type: PairedImageWTDataset
     dataroot_gt: /disk_c/han/data/ImageNet_lmdb/ImageNet_train_HR.lmdb
     dataroot_lq: /disk_c/han/data/ImageNet_lmdb/ImageNet_train_WT.lmdb
     filename_tmpl: '{}'
@@ -33,7 +33,7 @@ datasets:
 
   val:
     name: ImageNet
-    type: PairedImageDataset
+    type: PairedImageWTDataset
     dataroot_gt: /disk_c/han/data/ImageNet_lmdb/ImageNet_val_HR.lmdb
     dataroot_lq: /disk_c/han/data/ImageNet_lmdb/ImageNet_val_WT.lmdb
     io_backend:
