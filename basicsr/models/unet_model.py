@@ -96,10 +96,10 @@ class UNetModel(BaseModel):
         # Output transformation (normalization + wt_hf) -- both reconstructed & ground truth
         if self.output_transform_for_loss:
             # self.output = (self.output - self.mean) / self.std
-            self.output = wt_hf(self.output, self.net_g.filters, self.net_g.inv_filters, levels=2)
+            self.output = wt_hf(self.output, self.net_g.module.filters, self.net_g.module.inv_filters, levels=2)
 
             # self.gt = (self.gt - self.mean) / self.std
-            self.gt = wt_hf(self.gt, self.net_g.filters, self.net_g.inv_filters, levels=2)
+            self.gt = wt_hf(self.gt, self.net_g.module.filters, self.net_g.module.inv_filters, levels=2)
 
         l_total = 0
         loss_dict = OrderedDict()
