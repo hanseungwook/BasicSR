@@ -3,8 +3,6 @@ from collections import OrderedDict
 from torch import nn as nn
 from torchvision.models import vgg as vgg
 
-from basicsr.models.archs.arch_util import create_filters, create_inv_filters, wt_hf
-
 
 NAMES = {
     'vgg11': [
@@ -112,14 +110,6 @@ class VGGFeatureExtractor(nn.Module):
                             vgg_type)(pretrained=True).features[:max_idx + 1]
         # Load custom VGG network
         else:
-            # Set up WT filters
-            # filters = create_filters()
-            # inv_filters = create_inv_filters()
-            # self.register_buffer('filters', filters)
-            # self.register_buffer('inv_filters', inv_filters)
-
-            # self.wt_transform = lambda vimg: wt_hf(vimg, filters, inv_filters, levels=2)
-
             model = getattr(vgg, vgg_type)(pretrained=False)
             checkpoint = torch.load(model_path)
             model.load_state_dict(checkpoint['model'])

@@ -303,7 +303,8 @@ def zero_pad(img, target_dim, device='cpu'):
     batch_size = img.shape[0]
     num_channels = img.shape[1]
     padded_img = torch.zeros((batch_size, num_channels, target_dim, target_dim), device=device)
-    padded_img[:, :, :img.shape[2], :img.shape[3]] = img.to(device)
+    padded_img[:, :, :img.shape[2], :img.shape[3]] = img
+
     
     return padded_img
 
@@ -321,7 +322,7 @@ def wt(vimg, filters, levels=1):
         res[:,:1,:,32:] = res[:,:1,:,32:]*1.
         res[:,1:] = res[:,1:]*1.
     res = res.view(-1,2,h//2,w//2).transpose(1,2).contiguous().view(-1,1,h,w)
-    
+
     return res.reshape(bs, -1, h, w)
 
 
@@ -351,6 +352,10 @@ def wt_hf(vimg, filters, inv_filters, levels=1):
     iwt_img_hf = iwt(wt_img_hf, inv_filters, levels)
 
     return iwt_img_hf
+
+# Normalize for WT 64x64 patch
+def normalize_wt(x, shift, scale):
+  return ((x + shift) / scale)
 
 def get_3masks(img, mask_dim):
     tr = img[:, :, :mask_dim, mask_dim:]
