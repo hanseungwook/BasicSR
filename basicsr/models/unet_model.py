@@ -97,10 +97,10 @@ class UNetModel(BaseModel):
         # Output transformation (normalization + wt_hf) -- both reconstructed & ground truth
         if self.output_transform_for_loss:
             # self.output = (self.output - self.mean) / self.std
-            self.output = wt_hf(self.output, self.net_g.module.filters, self.net_g.module.inv_filters, levels=2)
+            self.output_wt = wt_hf(self.output, self.net_g.module.filters, self.net_g.module.inv_filters, levels=2)
 
             # self.gt = (self.gt - self.mean) / self.std
-            self.gt = wt_hf(self.gt, self.net_g.module.filters, self.net_g.module.inv_filters, levels=2)
+            self.gt_wt = wt_hf(self.gt, self.net_g.module.filters, self.net_g.module.inv_filters, levels=2)
 
         l_total = 0
         loss_dict = OrderedDict()
@@ -111,7 +111,7 @@ class UNetModel(BaseModel):
             loss_dict['l_pix'] = l_pix
         # perceptual loss
         if self.cri_perceptual:
-            l_percep, l_style = self.cri_perceptual(self.output, self.gt)
+            l_percep, l_style = self.cri_perceptual(self.output_wt, self.gt_wt)
             if l_percep is not None:
                 l_total += l_percep
                 loss_dict['l_percep'] = l_percep
