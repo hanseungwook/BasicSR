@@ -41,7 +41,7 @@ datasets:
 
 # network structures
 network_g:
-  type: SRResNet_WT_Pixel
+  type: UNet_Hierarchical
 
 # path
 path:
