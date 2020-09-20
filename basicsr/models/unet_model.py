@@ -25,6 +25,7 @@ class UNetModel(BaseModel):
 
         # Define additional buffers
         self.output_transform_for_loss = self.opt['train'].get('output_transform_for_loss')
+        print('Output transform (WT_HF): {}'.format(self.output_transform_for_loss))
         self.net_g = self.model_to_device(self.net_g)
         self.print_network(self.net_g)
 
