@@ -41,8 +41,8 @@ def main():
         if args.launcher == 'slurm' and 'dist_params' in opt:
             init_dist(args.launcher, **opt['dist_params'])
         else:
-            # init_dist(args.launcher, world_size=opt['num_gpu'])
-            init_dist(args.launcher)
+            init_dist(args.launcher, world_size=opt['num_gpu'])
+            # init_dist(args.launcher)
 
     rank, world_size = get_dist_info()
     opt['rank'] = rank
