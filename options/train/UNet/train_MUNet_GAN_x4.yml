@@ -56,6 +56,9 @@ path:
   # resume_state: /disk_c/han/BasicSR/experiments/001_MUNet_GAN_x4_f64b16_ImageNet_1000k_B16G2_wandb/training_states/5000.state
   resume_state: ~
 
+# Transforming output images (wt_hf) for loss calculation
+output_transform_for_loss: true
+
 # training settings
 train:
   optim_g:
@@ -76,9 +79,6 @@ train:
 
   total_iter: 400000
   warmup_iter: -1  # no warm up
-
-  # Transforming output images (wt_hf) for loss calculation
-  output_transform_for_loss: true
 
   # losses
   pixel_opt:

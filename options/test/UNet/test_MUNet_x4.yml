@@ -17,6 +17,9 @@ datasets:
 network_g:
   type: UNet_Hierarchical
 
+# Transforming output images (normalization + wt_hf) for loss calculation
+output_transform_for_loss: true
+
 # path
 path:
   pretrain_model_g: /disk_c/han/data/models/unet_g_pretrained_mse.pth
