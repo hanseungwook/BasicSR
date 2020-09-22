@@ -1,0 +1,128 @@
+# general settings
+name: 052_ESRGAN_Pixel_x4_f64b23_ImageNet_400k_B16G2_051pretrain_wandb
+model_type: ESRGANModel
+scale: 4
+num_gpu: 2  # set num_gpu: 0 for cpu mode
+manual_seed: 0
+
+# dataset and data loader settings
+datasets:
+  train:
+    name: ImageNet
+    type: PairedImageDataset
+    dataroot_gt: /disk_c/han/data/ImageNet_lmdb/ImageNet_train_HR.lmdb
+    dataroot_lq: /disk_c/han/data/ImageNet_lmdb/ImageNet_train_LR.lmdb
+    filename_tmpl: '{}'
+    io_backend:
+      type: lmdb
+      # type: disk
+
+    gt_size: 256
+    use_flip: true
+    use_rot: true
+
+    # data loader
+    use_shuffle: true
+    num_worker_per_gpu: 6
+    batch_size_per_gpu: 16
+    dataset_enlarge_ratio: 100
+    prefetch_mode: ~
+
+  val:
+    name: ImageNet
+    type: PairedImageDataset
+    dataroot_gt: /disk_c/han/data/ImageNet_lmdb/ImageNet_val_HR.lmdb
+    dataroot_lq: /disk_c/han/data/ImageNet_lmdb/ImageNet_val_LR.lmdb
+    io_backend:
+      type: lmdb
+
+# network structures
+network_g:
+  type: MSRResNet
+  num_in_ch: 3
+  num_out_ch: 3
+  num_feat: 64
+  num_block: 16
+  upscale: 4
+
+network_d:
+  type: VGGStyleDiscriminator128
+  num_in_ch: 3
+  num_feat: 64
+
+# path
+path:
+  pretrain_model_g: experiments/001_MSRResNet_L1_x4_f64b16_ImageNet_150k_B16G2_wandb/models/net_g_150000.pth
+  strict_load: true
+  resume_state: ~
+
+# training settings
+train:
+  optim_g:
+    type: Adam
+    lr: !!float 1e-4
+    weight_decay: 0
+    betas: [0.9, 0.99]
+  optim_d:
+    type: Adam
+    lr: !!float 1e-4
+    weight_decay: 0
+    betas: [0.9, 0.99]
+
+  scheduler:
+    type: MultiStepLR
+    milestones: [50000, 100000, 200000, 300000]
+    gamma: 0.5
+
+  total_iter: 400000
+  warmup_iter: -1  # no warm up
+
+  # losses
+  pixel_opt:
+    type: L1Loss
+    loss_weight: !!float 1e-2
+    reduction: mean
+  perceptual_opt:
+    type: PerceptualLoss
+    layer_weights:
+      'conv5_4': 1  # before relu
+    vgg_type: vgg19
+    use_input_norm: true
+    perceptual_weight: 1.0
+    style_weight: 0
+    norm_img: false
+    criterion: l1
+  gan_opt:
+    type: GANLoss
+    gan_type: vanilla
+    real_label_val: 1.0
+    fake_label_val: 0.0
+    loss_weight: !!float 5e-3
+
+  net_d_iters: 1
+  net_d_init_iters: 0
+
+# validation settings
+val:
+  val_freq: !!float 1e4
+  save_img: true
+
+  metrics:
+    psnr: # metric name, can be arbitrary
+      type: calculate_psnr
+      crop_border: 4
+      test_y_channel: false
+
+# logging settings
+logger:
+  print_freq: 100
+  save_checkpoint_freq: !!float 5e3
+  use_tb_logger: true
+  wandb:
+    project: basicsr-esrgan-pixel
+    resume_id: ~
+
+# dist training settings
+dist_params:
+  backend: nccl
+  port: 29500
