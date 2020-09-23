@@ -4,8 +4,8 @@ import torch
 from collections import OrderedDict
 from copy import deepcopy
 from os import path as osp
-
 import h5py
+import numpy as np
 
 from basicsr.models import networks as networks
 from basicsr.models.base_model import BaseModel
