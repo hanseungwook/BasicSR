@@ -98,5 +98,5 @@ class MSRResNet_WT_Pixel(nn.Module):
         return out
     
     def reset_buffers(self):
-        self.shift = torch.Tensor([2.0, 8.0])
+        self.shift = torch.Tensor([2.0])
         self.scale = torch.Tensor([8.0])
