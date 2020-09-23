@@ -23,6 +23,7 @@ class SRModel(BaseModel):
 
         # define network
         self.net_g = networks.define_net_g(deepcopy(opt['network_g']))
+        self.net_g.reset_buffers()
         self.net_g = self.model_to_device(self.net_g)
         self.print_network(self.net_g)
 
@@ -222,6 +223,3 @@ class SRModel(BaseModel):
     def save(self, epoch, current_iter):
         self.save_network(self.net_g, 'net_g', current_iter)
         self.save_training_state(epoch, current_iter)
-    
-    def reset_buffers(self):
-        self.net_g.reset_buffers()
