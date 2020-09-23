@@ -68,10 +68,10 @@ class MSRResNet_WT_Pixel(nn.Module):
         # Normalization buffers
         self.register_buffer(
             'shift',
-            torch.Tensor([2.0]))
+            torch.Tensor([1.0]))
         self.register_buffer(
             'scale',
-                torch.Tensor([8.0]))
+                torch.Tensor([4.0]))
 
     def forward(self, x):
         # IWT x once to get LFC
@@ -98,5 +98,5 @@ class MSRResNet_WT_Pixel(nn.Module):
         return out
     
     def reset_buffers(self):
-        self.shift = torch.Tensor([2.0]).to(self.shift.device)
-        self.scale = torch.Tensor([8.0]).to(self.scale.device)
+        self.shift = torch.Tensor([1.0]).to(self.shift.device)
+        self.scale = torch.Tensor([4.0]).to(self.scale.device)
