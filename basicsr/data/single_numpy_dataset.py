@@ -25,12 +25,12 @@ class SingleNumpyDataset(data.Dataset):
         self.lq_folder = opt['dataroot_lq']
         self.lq_dataset = np.load(self.lq_folder)['x']
         
-        self.filters = arch_util.create_filters().to('cuda:0')
+        self.filters = arch_util.create_filters()
 
     def __getitem__(self, index):
         # Apply 1 more WT
         img = self.lq_dataset[index]
-        img_wt = arch_util.wt(torch.from_numpy(img).unsqueeze(0).to('cuda:0'), self.filters, levels=1).squeeze().cpu()
+        img_wt = arch_util.wt(torch.from_numpy(img).unsqueeze(0), self.filters, levels=1).squeeze()
 
         return {'lq': img_wt, 'lq_path': self.lq_folder.split('.')[0] + '_{}.png'.format(index)}
 
