@@ -23,7 +23,6 @@ class SRModel(BaseModel):
 
         # define network
         self.net_g = networks.define_net_g(deepcopy(opt['network_g']))
-        self.net_g.reset_buffers()
         self.net_g = self.model_to_device(self.net_g)
         self.print_network(self.net_g)
 
@@ -32,6 +31,7 @@ class SRModel(BaseModel):
         if load_path is not None:
             self.load_network(self.net_g, load_path,
                               self.opt['path']['strict_load'])
+        self.net_g.reset_buffers()
 
         if self.is_train:
             self.init_training_settings()
