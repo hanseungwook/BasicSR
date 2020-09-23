@@ -133,6 +133,7 @@ class SRModel(BaseModel):
                 metric: 0
                 for metric in self.opt['val']['metrics'].keys()
             }
+
         pbar = ProgressBar(len(dataloader))
 
         # Set up h5 file, if save
@@ -221,3 +222,6 @@ class SRModel(BaseModel):
     def save(self, epoch, current_iter):
         self.save_network(self.net_g, 'net_g', current_iter)
         self.save_training_state(epoch, current_iter)
+    
+    def reset_buffers(self):
+        self.net_g.reset_buffers()

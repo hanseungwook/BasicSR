@@ -77,6 +77,7 @@ def main():
 
     # create model
     model = create_model(opt)
+    model.reset_buffers()
 
     for test_loader in test_loaders:
         test_set_name = test_loader.dataset.opt['name']
