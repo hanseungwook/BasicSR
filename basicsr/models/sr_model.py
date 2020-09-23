@@ -150,7 +150,7 @@ class SRModel(BaseModel):
 
             # Save to h5 file, if save
             if save_h5:
-                batch_size = val_data.shape[0]
+                batch_size = val_data['lq'].shape[0]
                 h5_dataset[counter:counter+batch_size] = visuals['result'].numpy()
                 counter += batch_size
 
