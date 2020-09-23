@@ -85,7 +85,8 @@ def main():
             test_loader,
             current_iter=opt['name'],
             tb_logger=None,
-            save_img=opt['val']['save_img'])
+            save_img=opt['val']['save_img']
+            save_h5=opt['val']['save_h5'])
 
 
 if __name__ == '__main__':

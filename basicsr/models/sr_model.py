@@ -5,6 +5,8 @@ from collections import OrderedDict
 from copy import deepcopy
 from os import path as osp
 
+import h5py
+
 from basicsr.models import networks as networks
 from basicsr.models.base_model import BaseModel
 from basicsr.utils import ProgressBar, get_root_logger, tensor2img
@@ -117,13 +119,13 @@ class SRModel(BaseModel):
             self.output = self.net_g(self.lq)
         self.net_g.train()
 
-    def dist_validation(self, dataloader, current_iter, tb_logger, save_img):
+    def dist_validation(self, dataloader, current_iter, tb_logger, save_img, save_h5):
         logger = get_root_logger()
         logger.info('Only support single GPU validation.')
         self.nondist_validation(dataloader, current_iter, tb_logger, save_img)
 
     def nondist_validation(self, dataloader, current_iter, tb_logger,
-                           save_img):
+                           save_img, save_h5):
         dataset_name = dataloader.dataset.opt['name']
         with_metrics = self.opt['val'].get('metrics') is not None
         if with_metrics:
@@ -133,12 +135,25 @@ class SRModel(BaseModel):
             }
         pbar = ProgressBar(len(dataloader))
 
+        # Set up h5 file, if save
+        if save_h5: 
+            h5_file = h5py.File(osp.join(self.opt['path']['visualization'], 'recon_img.hdf5'), 'w')
+            h5_dataset = h5_file.create_dataset('data', shape=(len(dataloader.dataset), 3, 256, 256), dtype=np.float32, fillvalue=0)
+            counter = 0
+
         for idx, val_data in enumerate(dataloader):
             img_name = osp.splitext(osp.basename(val_data['lq_path'][0]))[0]
             self.feed_data(val_data)
             self.test()
 
             visuals = self.get_current_visuals()
+
+            # Save to h5 file, if save
+            if save_h5:
+                batch_size = val_data.shape[0]
+                h5_dataset[counter:counter+batch_size] = visuals['result'].numpy()
+                counter += batch_size
+
             sr_img = tensor2img([visuals['result']])
             if 'gt' in visuals:
                 gt_img = tensor2img([visuals['gt']])
@@ -174,6 +189,9 @@ class SRModel(BaseModel):
                         metric_module, metric_type)(sr_img, gt_img, **opt_)
             pbar.update(f'Test {img_name}')
 
+        if save_h5:
+            h5_file.close()
+            
         if with_metrics:
             for metric in self.metric_results.keys():
                 self.metric_results[metric] /= (idx + 1)
