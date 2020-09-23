@@ -1,6 +1,7 @@
 import mmcv
 import numpy as np
 from torch.utils import data as data
+import torch
 
 from basicsr.data.transforms import augment, paired_random_crop, totensor
 from basicsr.models.archs import arch_util
