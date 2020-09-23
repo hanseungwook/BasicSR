@@ -122,7 +122,7 @@ class SRModel(BaseModel):
     def dist_validation(self, dataloader, current_iter, tb_logger, save_img, save_h5):
         logger = get_root_logger()
         logger.info('Only support single GPU validation.')
-        self.nondist_validation(dataloader, current_iter, tb_logger, save_img)
+        self.nondist_validation(dataloader, current_iter, tb_logger, save_img, save_h5)
 
     def nondist_validation(self, dataloader, current_iter, tb_logger,
                            save_img, save_h5):
@@ -191,7 +191,7 @@ class SRModel(BaseModel):
 
         if save_h5:
             h5_file.close()
-            
+
         if with_metrics:
             for metric in self.metric_results.keys():
                 self.metric_results[metric] /= (idx + 1)
