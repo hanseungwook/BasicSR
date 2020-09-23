@@ -52,7 +52,7 @@ network_d:
 
 # path
 path:
-  pretrain_model_g: experiments/001_MSRResNet_WT_Pixel_Church_x4_f64b16_ImageNet_1000k_B16G2_wandb/models/net_g_150000.pth
+  pretrain_model_g: experiments/001_MSRResNet_WT_Pixel_Church_x4_f64b16_ImageNet_1000k_B16G2_wandb/models/net_g_300000.pth
   strict_load: true
   # resume_state: experiments/052_ESRGAN_WT_Pixel_x4_f64b23_ImageNet_400k_B16G2_051pretrain_wandb/training_states/70000.state
   resume_state: ~
