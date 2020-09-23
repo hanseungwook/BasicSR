@@ -44,10 +44,10 @@ class BaseModel():
             save_img (bool): Whether to save images. Default: False.
         """
         if self.opt['dist']:
-            self.dist_validation(dataloader, current_iter, tb_logger, save_img)
+            self.dist_validation(dataloader, current_iter, tb_logger, save_img, save_h5)
         else:
             self.nondist_validation(dataloader, current_iter, tb_logger,
-                                    save_img)
+                                    save_img, save_h5)
 
     def get_current_log(self):
         return self.log_dict
