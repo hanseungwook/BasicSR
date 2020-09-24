@@ -1,4 +1,4 @@
-name: ESRGAN_WT_Pixel
+name: ESRGAN_Pixel
 model_type: ESRGANModel
 scale: 4
 num_gpu: 1  # set num_gpu: 0 for cpu mode
@@ -7,12 +7,12 @@ manual_seed: 0
 datasets:
   test_1:  # the 1st test dataset
     name: Biggan
-    type: SingleNumpyWTDataset
-    dataroot_lq: /disk_c/han/data/biggan/samples_z1.npz
+    type: SingleNumpyDataset
+    dataroot_lq: /disk_c/han/data/biggan/pretrained256_samples_64_z1.npz
 
 # network structures
 network_g:
-  type: MSRResNet_WT_Pixel
+  type: MSRResNet
   num_in_ch: 3
   num_out_ch: 3
   num_feat: 64
@@ -21,7 +21,7 @@ network_g:
 
 # path
 path:
-  pretrain_model_g: experiments/052_ESRGAN_WT_Pixel_x4_f64b23_ImageNet_400k_B16G2_051pretrain_wandb/models/net_g_150000.pth
+  pretrain_model_g: experiments/052_ESRGAN_Pixel_x4_f64b23_ImageNet_400k_B16G2_051pretrain_wandb/models/net_g_150000.pth
   strict_load: true
 
 # validation settings
