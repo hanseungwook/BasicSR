@@ -2,7 +2,7 @@ import mmcv
 import torch
 from os import path as osp
 
-from basicsr.utils.lmdb import make_lmdb_from_imgs, make_lr_lmdb_from_imgs, make_wt_lmdb_from_imgs
+from basicsr.utils.lmdb import make_lmdb_from_imgs, make_lr_lmdb_from_imgs, make_wt_lmdb_from_imgs, make_inter_wt_lmdb_from_imgs
 
 
 def create_lmdb_for_div2k():
@@ -100,6 +100,31 @@ def create_lmdb_for_imagenet_wt():
     lmdb_path = '/disk_c/han/data/ImageNet_lmdb/ImageNet_val_WT.lmdb'
     img_path_list, keys = prepare_keys_imagenet(folder_path)
     make_wt_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys)
+
+def create_lmdb_for_imagenet_inter_wt():
+    """Create lmdb files for ImageNet dataset. Applying interpolation from
+    256 => 128 and then applying 1 WT from 128 => 64.
+
+    Usage:
+        Before run this script, please run `extract_subimages.py`.
+        Typically, there are four folders to be processed for DIV2K dataset.
+            DIV2K_train_HR_sub
+            DIV2K_train_LR_bicubic/X2_sub
+            DIV2K_train_LR_bicubic/X3_sub
+            DIV2K_train_LR_bicubic/X4_sub
+        Remember to modify opt configurations according to your settings.
+    """
+    # HR train images
+    folder_path = '/disk_c/han/data/ImageNet_256x256/train/'
+    lmdb_path = '/disk_c/han/data/ImageNet_lmdb/ImageNet_train_INTER_WT.lmdb'
+    img_path_list, keys = prepare_keys_imagenet(folder_path)
+    make_inter_wt_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys)
+
+    # HR val images
+    folder_path = '/disk_c/han/data/ImageNet_256x256/val/'
+    lmdb_path = '/disk_c/han/data/ImageNet_lmdb/ImageNet_val_INTER_WT.lmdb'
+    img_path_list, keys = prepare_keys_imagenet(folder_path)
+    make_inter_wt_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys)
 
 def create_lmdb_for_lsun_church_wt():
     """Create lmdb files for LSUN Church dataset.
@@ -276,7 +301,8 @@ def prepare_keys_vimeo90k(folder_path, train_list_path, mode):
 if __name__ == '__main__':
     # create_lmdb_for_imagenet()
     # create_lmdb_for_imagenet_wt()
-    create_lmdb_for_lsun_church_wt()
+    create_lmdb_for_imagenet_inter_wt()
+    # create_lmdb_for_lsun_church_wt()
     # create_lmdb_for_imagenet_lr()
     # create_lmdb_for_div2k()
     # create_lmdb_for_reds()
