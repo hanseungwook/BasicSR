@@ -8,7 +8,7 @@ datasets:
   test_1:  # the 1st test dataset
     name: Biggan
     type: SingleNumpyDataset
-    dataroot_lq: /disk_c/han/data/biggan/pretrained256_samples_64_z1.npz
+    dataroot_lq: /disk_c/han/data/biggan/pretrained512_samples_duf128_z1.npz
 
 # network structures
 network_g:
