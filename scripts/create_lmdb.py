@@ -2,7 +2,7 @@ import mmcv
 import torch
 from os import path as osp
 
-from basicsr.utils.lmdb import make_lmdb_from_imgs, make_lr_lmdb_from_imgs, make_wt_lmdb_from_imgs
+from basicsr.utils.lmdb import make_lmdb_from_imgs, make_lr_lmdb_from_imgs, make_wt_lmdb_from_imgs, make_inter_wt_lmdb_from_imgs
 
 
 def create_lmdb_for_div2k():
