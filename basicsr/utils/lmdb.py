@@ -644,7 +644,7 @@ def make_inter_wt_lmdb_from_imgs(data_path,
             osp.join(data_path, img_path_list[0]), flag='unchanged')
         img = mmcv.image.imresize(img, (128, 128), interpolation='lanczos', backend='cv2')
         img = torch.from_numpy(img / 255.0).float()
-        img = wt(img.permute(2,0,1).unsqueeze(0), filters, levels=2)[:, :, :64, :64].numpy()
+        img = wt(img.permute(2,0,1).unsqueeze(0).to('cuda:0'), filters, levels=2)[:, :, :64, :64].cpu().numpy()
         img_byte = img.tobytes()
         data_size_per_img = len(img_byte)
         print('Data size per image is: ', data_size_per_img)
