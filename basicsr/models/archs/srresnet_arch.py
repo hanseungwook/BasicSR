@@ -74,3 +74,6 @@ class MSRResNet(nn.Module):
             x, scale_factor=self.upscale, mode='bilinear', align_corners=False)
         out += base
         return out
+    
+    def reset_buffers(self):
+        pass
