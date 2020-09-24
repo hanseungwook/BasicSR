@@ -513,7 +513,7 @@ def make_wt_lmdb_from_imgs(data_path,
         img = mmcv.imread(
             osp.join(data_path, img_path_list[0]), flag='unchanged')
         img = torch.from_numpy(img / 255.0).float()
-        img = wt(img.permute(2,0,1).unsqueeze(0), filters, levels=3)[:, :, :64, :64].numpy()
+        img = wt(img.permute(2,0,1).unsqueeze(0).to('cuda:0'), filters, levels=3)[:, :, :64, :64].cpu().numpy()
         img_byte = img.tobytes()
         data_size_per_img = len(img_byte)
         print('Data size per image is: ', data_size_per_img)
