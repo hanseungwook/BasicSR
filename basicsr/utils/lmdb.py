@@ -635,7 +635,7 @@ def make_inter_wt_lmdb_from_imgs(data_path,
         print(f'Finish reading {len(img_path_list)} images.')
 
     # create wt filters
-    filters = create_filters(device='cpu')
+    filters = create_filters(device='cuda:0')
 
     # create lmdb environment
     if map_size is None:
@@ -713,9 +713,9 @@ def read_img_worker(path, key, compress_level, lr=False, use_wt=False, use_inter
         img = mmcv.image.imresize(img, (128, 128), interpolation='lanczos', backend='cv2')
         img = torch.from_numpy(img / 255.0).float()
         if img.ndim == 2:
-            img = wt(img.unsqueeze(0).unsqueeze(0), filters, levels=2)[:, :, :64, :64].squeeze().numpy()
+            img = wt(img.unsqueeze(0).unsqueeze(0).to('cuda:0'), filters, levels=2)[:, :, :64, :64].squeeze().cpu().numpy()
         elif img.ndim == 3:
-            img = wt(img.permute(2,0,1).unsqueeze(0), filters, levels=2)[:, :, :64, :64].squeeze().permute(1,2,0).numpy()
+            img = wt(img.permute(2,0,1).unsqueeze(0).to('cuda:0'), filters, levels=2)[:, :, :64, :64].squeeze().permute(1,2,0).cpu().numpy()
 
     if img.ndim == 2:
         h, w = img.shape
