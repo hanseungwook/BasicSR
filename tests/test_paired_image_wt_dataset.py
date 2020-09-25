@@ -70,7 +70,7 @@ def main(mode='folder'):
     scale = shift + torch.ceil(max_val)
     print('Shift: {}\nScale: {}'.format(shift, scale))
 
-    np.savez('/disk_c/han/data/BasicSR/inter_wt_norm_values.npz', **{'min' : min_val.cpu(), 'max' : max_val.cpu(), 'shift': shift.cpu(), 'scale': scale.cpu()})
+    np.savez('/disk_c/han/BasicSR/inter_wt_norm_values.npz', **{'min' : min_val.cpu(), 'max' : max_val.cpu(), 'shift': shift.cpu(), 'scale': scale.cpu()})
 
         
 
