@@ -666,7 +666,7 @@ def make_inter_wt_lmdb_from_imgs(data_path,
             h, w, c = shapes[key]
         else:
             _, img_byte, img_shape = read_img_worker(
-                osp.join(data_path, path), key, compress_level, use_wt=False, use_inter_wt=True, filters=filters)
+                osp.join(data_path, path), key, compress_level, use_wt=True, use_inter_wt=True, filters=filters)
             h, w, c = img_shape
 
         txn.put(key_byte, img_byte)
