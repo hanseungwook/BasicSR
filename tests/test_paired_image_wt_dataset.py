@@ -60,8 +60,6 @@ def main(mode='folder'):
     min_val = float('inf')
     max_val = float('-inf')
     for i, data in enumerate(data_loader):
-        print(i)
-
         lq = data['lq'].to(device)
         lq_iwt = arch_util.iwt(lq, inv_filters, levels=1)
         min_val = min(min_val, lq_iwt.min())
@@ -72,7 +70,7 @@ def main(mode='folder'):
     scale = shift + torch.ceil(max_val)
     print('Shift: {}\nScale: {}'.format(shift, scale))
 
-    np.savez('/disk_c/han/data/biggan/pretrained512_norm_values.npz', **{'min' : min_val.cpu(), 'max' : max_val.cpu(), 'shift': shift.cpu(), 'scale': scale.cpu()})
+    np.savez('/disk_c/han/data/BasicSR/inter_wt_norm_values.npz', **{'min' : min_val.cpu(), 'max' : max_val.cpu(), 'shift': shift.cpu(), 'scale': scale.cpu()})
 
         
 
