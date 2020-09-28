@@ -1,4 +1,4 @@
-name: ESRGAN_Pixel
+name: BigGAN_pretrained128_z1_duf64_rej80_ESRGAN_Pixel_150k
 model_type: ESRGANModel
 scale: 4
 num_gpu: 1  # set num_gpu: 0 for cpu mode
@@ -8,7 +8,7 @@ datasets:
   test_1:  # the 1st test dataset
     name: Biggan
     type: SingleNumpyDataset
-    dataroot_lq: /disk_c/han/data/biggan/pretrained512_samples_duf128_z1.npz
+    dataroot_lq: /disk_d/han/data/biggan/pretrained128_duf64_z1_rejection80.npz 
 
 # network structures
 network_g:
