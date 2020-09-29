@@ -4,6 +4,7 @@ from os import path as osp
 from torch.utils import data as data
 from torchvision.transforms.functional import normalize
 
+from basicsr.data.util import single_paths_from_lmdb
 from basicsr.data.transforms import totensor
 from basicsr.utils import FileClient
 
@@ -33,7 +34,13 @@ class SingleImageDataset(data.Dataset):
         self.mean = opt['mean'] if 'mean' in opt else None
         self.std = opt['std'] if 'std' in opt else None
         self.lq_folder = opt['dataroot_lq']
-        if 'meta_info_file' in self.opt:
+        if self.io_backend_opt['type'] == 'lmdb':
+            self.io_backend_opt['db_paths'] = [self.lq_folder]
+            self.io_backend_opt['client_keys'] = ['lq']
+            self.paths = single_paths_from_lmdb(
+                [self.lq_folder], ['lq'])
+        elif 'meta_info_file' in self.opt and self.opt[
+                'meta_info_file'] is not None:
             with open(self.opt['meta_info_file'], 'r') as fin:
                 self.paths = [
                     osp.join(self.lq_folder,
@@ -44,15 +51,15 @@ class SingleImageDataset(data.Dataset):
                 osp.join(self.lq_folder, v)
                 for v in mmcv.scandir(self.lq_folder)
             ]
+        
 
     def __getitem__(self, index):
         if self.file_client is None:
             self.file_client = FileClient(
                 self.io_backend_opt.pop('type'), **self.io_backend_opt)
 
-        # load lq image
-        lq_path = self.paths[index]
-        img_bytes = self.file_client.get(lq_path)
+        lq_path = self.paths[index]['lq_path']
+        img_bytes = self.file_client.get(lq_path, 'lq')
         img_lq = mmcv.imfrombytes(img_bytes).astype(np.float32) / 255.
 
         # TODO: color space transform

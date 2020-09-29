@@ -7,7 +7,7 @@ manual_seed: 0
 datasets:
   test_1:  # the 1st test dataset
     name: ImageNet
-    type: PairedImageDataset
+    type: SingleImageDataset
     dataroot_lq: /disk_c/han/data/ImageNet_lmdb/ImageNet_train_LR.lmdb
     filename_tmpl: '{}'
     io_backend:
