@@ -189,6 +189,9 @@ class SRModel(BaseModel):
                         metric_module, metric_type)(sr_img, gt_img, **opt_)
             pbar.update(f'Test {img_name}')
 
+            if idx >= 49999:
+                break
+
         if save_h5:
             h5_file.close()
 
