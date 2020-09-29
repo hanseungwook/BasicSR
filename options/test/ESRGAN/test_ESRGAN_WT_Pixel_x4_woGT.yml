@@ -29,3 +29,7 @@ val:
   save_img: true
   save_h5: true
   suffix: ~  # add suffix to saved images, if None, use exp name
+
+  metrics:
+    mse: # metric name, can be arbitrary
+      type: calculate_mse
