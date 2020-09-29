@@ -124,7 +124,7 @@ def single_paths_from_lmdb(folders, keys):
     assert len(folders) == 1, (
         'The len of folders should be 1 with [input_folder]. '
         f'But got {len(folders)}')
-    assert len(keys) == 2, (
+    assert len(keys) == 1, (
         'The len of keys should be 1 with [input_key]. '
         f'But got {len(keys)}')
     input_folder = folders[0]
