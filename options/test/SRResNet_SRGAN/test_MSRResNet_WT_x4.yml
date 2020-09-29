@@ -15,7 +15,7 @@ datasets:
 
 # network structures
 network_g:
-  type: MSRResNet
+  type: MSRResNet_WT_Pixel 
   num_in_ch: 3
   num_out_ch: 3
   num_feat: 64
