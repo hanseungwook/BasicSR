@@ -86,6 +86,71 @@ def generate_frame_indices(crt_idx,
         indices.append(pad_idx)
     return indices
 
+def single_paths_from_lmdb(folders, keys):
+    """Generate single path from lmdb file.
+
+    Contents of lmdb. Taking the `lq.lmdb` for example, the file structure is:
+
+    lq.lmdb
+    ├── data.mdb
+    ├── lock.mdb
+    ├── meta_info.txt
+
+    The data.mdb and lock.mdb are standard lmdb files and you can refer to
+    https://lmdb.readthedocs.io/en/release/ for more details.
+
+    The meta_info.txt is a specified txt file to record the meta information
+    of our datasets. It will be automatically created when preparing
+    datasets by our provided dataset tools.
+    Each line in the txt file records
+    1)image name (with extension),
+    2)image shape,
+    3)compression level, separated by a white space.
+    Example: `baboon.png (120,125,3) 1`
+
+    We use the image name without extension as the lmdb key.
+    Note that we use the same key for the corresponding lq and gt images.
+
+    Args:
+        folders (list[str]): A list of folder path. The order of list should
+            be [input_folder, gt_folder].
+        keys (list[str]): A list of keys identifying folders. The order should
+            be in consistent with folders, e.g., ['lq', 'gt'].
+            Note that this key is different from lmdb keys.
+
+    Returns:
+        list[str]: Returned path list.
+    """
+    assert len(folders) == 1, (
+        'The len of folders should be 1 with [input_folder]. '
+        f'But got {len(folders)}')
+    assert len(keys) == 2, (
+        'The len of keys should be 1 with [input_key]. '
+        f'But got {len(keys)}')
+    input_folder = folders[0]
+    input_key = keys[0]
+
+    if not (input_folder.endswith('.lmdb')):
+        raise ValueError(
+            f'{input_key} folder should both in lmdb '
+            f'formats. But received {input_key}: {input_folder}; '
+            )
+    # ensure that the two meta_info files are the same
+    with open(osp.join(input_folder, 'meta_info.txt')) as fin:
+        input_lmdb_keys = [line.split('.')[0] for line in fin]
+        fin.seek(0)
+        input_lmdb_shapes = [line.split('.')[1] for line in fin]
+        # Indices of 1 channel
+        c3_idxs = [0 if ',1)' in input_shape else 1 for input_shape in input_lmdb_shapes]
+        # Including indices of 4 channel
+        c3_idxs = [0 if ',4)' in input_lmdb_shapes[k] else c3_idxs[k] for k in range(len(input_lmdb_shapes))]
+        input_lmdb_keys = [input_lmdb_keys[j] for j in range(len(input_lmdb_shapes)) if c3_idxs[j] == 1]
+
+    paths = []
+    for lmdb_key in sorted(input_lmdb_keys):
+        paths.append(
+            dict([(f'{input_key}_path', lmdb_key)]))
+    return paths
 
 def paired_paths_from_lmdb(folders, keys):
     """Generate paired paths from lmdb files.
