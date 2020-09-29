@@ -77,7 +77,7 @@ class SingleImageWTDataset(data.Dataset):
         # image range: [0, 1], float32.
         lq_path = self.paths[index]['lq_path']
         img_bytes = self.file_client.get(lq_path, 'lq')
-        img_lq = np.copy(np.frombuffer(img_bytes, dtype='float32')).reshape(img_gt_h//scale, img_gt_w//scale, -1)
+        img_lq = np.copy(np.frombuffer(img_bytes, dtype='float32')).reshape(64, 64, -1)
 
         # No augmentation for training
         # if self.opt['phase'] == 'train':
