@@ -1,4 +1,4 @@
-name: BigGAN_pretrained128_z1_duf64_rej80_ESRGAN_Pixel_150k
+name: BigGAN_pretrained128_z1_ESRGAN_Pixel_150k_new
 model_type: ESRGANModel
 scale: 4
 num_gpu: 1  # set num_gpu: 0 for cpu mode
@@ -8,7 +8,7 @@ datasets:
   test_1:  # the 1st test dataset
     name: Biggan
     type: SingleNumpyDataset
-    dataroot_lq: /disk_d/han/data/biggan/pretrained128_duf64_z1_rejection80.npz 
+    dataroot_lq: /disk_d/han/data/biggan/pretrained128_samples_trunc1.0_new.npz 
 
 # network structures
 network_g:
@@ -26,6 +26,10 @@ path:
 
 # validation settings
 val:
-  save_img: true
+  save_img: false
   save_h5: true
   suffix: ~  # add suffix to saved images, if None, use exp name
+
+  #metrics:
+  #  mse: # metric name, can be arbitrary
+  #   type: calculate_mse
