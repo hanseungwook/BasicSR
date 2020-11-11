@@ -101,6 +101,31 @@ def create_lmdb_for_imagenet_wt():
     img_path_list, keys = prepare_keys_imagenet(folder_path)
     make_wt_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys)
 
+def create_lmdb_for_biggan_samples():
+    """Create lmdb files for DIV2K dataset.
+
+    Usage:
+        Before run this script, please run `extract_subimages.py`.
+        Typically, there are four folders to be processed for DIV2K dataset.
+            DIV2K_train_HR_sub
+            DIV2K_train_LR_bicubic/X2_sub
+            DIV2K_train_LR_bicubic/X3_sub
+            DIV2K_train_LR_bicubic/X4_sub
+        Remember to modify opt configurations according to your settings.
+    """
+    # Ground truth samples (in jpg format not png)
+    folder_path = '/disk_c/han/data/Pretrained_BigGAN_256x256/'
+    lmdb_path = '/disk_c/han/data/Pretrained_BigGAN_lmdb/Pretrained256_HR.lmdb'
+    img_path_list, keys = prepare_keys_imagenet_jpg(folder_path)
+    make_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys, n_thread=16)
+
+    # Samples WT'ed (in jpg format not png)
+    folder_path = '/disk_c/han/data/Pretrained_BigGAN_256x256/'
+    lmdb_path = '/disk_c/han/data/Pretrained_BigGAN_lmdb/Pretrained256_WT.lmdb'
+    img_path_list, keys = prepare_keys_imagenet_jpg(folder_path)
+    make_wt_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys)
+
+
 def create_lmdb_for_imagenet_inter_wt():
     """Create lmdb files for ImageNet dataset. Applying interpolation from
     256 => 128 and then applying 1 WT from 128 => 64.
@@ -194,6 +219,23 @@ def prepare_keys_imagenet(folder_path):
     img_path_list = sorted(
         list(mmcv.scandir(folder_path, suffix=('', 'png'))))
     keys = [img_path.split('.png')[0] for img_path in sorted(img_path_list)]
+
+    return img_path_list, keys
+
+def prepare_keys_imagenet_jpg(folder_path):
+    """Prepare image path list and keys for ImageNet dataset.
+
+    Args:
+        folder_path (str): Folder path.
+
+    Returns:
+        list[str]: Image path list.
+        list[str]: Key list.
+    """
+    print('Reading image path list ...')
+    img_path_list = sorted(
+        list(mmcv.scandir(folder_path, suffix=('', 'jpg'))))
+    keys = [img_path.split('.jpg')[0] for img_path in sorted(img_path_list)]
 
     return img_path_list, keys
 
@@ -301,7 +343,8 @@ def prepare_keys_vimeo90k(folder_path, train_list_path, mode):
 if __name__ == '__main__':
     # create_lmdb_for_imagenet()
     # create_lmdb_for_imagenet_wt()
-    create_lmdb_for_imagenet_inter_wt()
+    create_lmdb_for_biggan_samples()
+    # create_lmdb_for_imagenet_inter_wt()
     # create_lmdb_for_lsun_church_wt()
     # create_lmdb_for_imagenet_lr()
     # create_lmdb_for_div2k()
