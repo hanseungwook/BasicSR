@@ -96,3 +96,7 @@ class MSRResNet_WT_Pixel(nn.Module):
         base = arch_util.iwt(arch_util.zero_pad(x, x.shape[3]*self.upscale, x.device), self.inv_filters, 2)
         out += base
         return out
+
+    def reset_buffers(self):
+        self.shift = torch.Tensor([2.0]).to(self.shift.device)
+        self.scale = torch.Tensor([8.0]).to(self.scale.device)
