@@ -223,9 +223,9 @@ def main():
     logger.info(f'End of training. Time consumed: {consumed_time}')
     logger.info('Save the latest model.')
     model.save(epoch=-1, current_iter=-1)  # -1 stands for the latest
-    if opt['val']['val_freq'] is not None:
-        model.validation(val_loader, current_iter, tb_logger,
-                         opt['val']['save_img'])
+    # if opt['val']['val_freq'] is not None:
+    #     model.validation(val_loader, current_iter, tb_logger,
+    #                      opt['val']['save_img'])
     if tb_logger:
         tb_logger.close()
 
