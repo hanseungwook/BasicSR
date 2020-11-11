@@ -34,7 +34,7 @@ class SRModel(BaseModel):
         
         # Resetting shift and scale buffers
         if isinstance(self.net_g, (DataParallel, DistributedDataParallel)):
-            self.net_g.module.reset_buffers():
+            self.net_g.module.reset_buffers()
         else:
             self.net_g.reset_buffers()
 
