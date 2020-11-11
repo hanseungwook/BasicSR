@@ -706,9 +706,9 @@ def read_img_worker(path, key, compress_level, lr=False, use_wt=False, use_inter
         if img.ndim == 2:
             print(img.shape, 'weird shape of image c=1')
             sys.exit(1)
-            img = wt(img.unsqueeze(0).unsqueeze(0), filters, levels=3)[:, :, :64, :64].squeeze().numpy()
+            img = wt(img.unsqueeze(0).unsqueeze(0).to('cuda:0'), filters, levels=3)[:, :, :64, :64].squeeze().numpy()
         elif img.ndim == 3:
-            img = wt(img.permute(2,0,1).unsqueeze(0), filters, levels=3)[:, :, :64, :64].squeeze().permute(1,2,0).numpy()
+            img = wt(img.permute(2,0,1).unsqueeze(0).to('cuda:0'), filters, levels=3)[:, :, :64, :64].squeeze().permute(1,2,0).numpy()
     elif use_inter_wt:
         img = mmcv.image.imresize(img, (128, 128), interpolation='lanczos', backend='cv2')
         img = torch.from_numpy(img / 255.0).float()

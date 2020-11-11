@@ -114,10 +114,10 @@ def create_lmdb_for_biggan_samples():
         Remember to modify opt configurations according to your settings.
     """
     # Ground truth samples (in jpg format not png)
-    folder_path = '/disk_c/han/data/Pretrained_BigGAN_256x256/'
-    lmdb_path = '/disk_c/han/data/Pretrained_BigGAN_lmdb/Pretrained256_HR.lmdb'
-    img_path_list, keys = prepare_keys_imagenet_jpg(folder_path)
-    make_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys, n_thread=16)
+    # folder_path = '/disk_c/han/data/Pretrained_BigGAN_256x256/'
+    # lmdb_path = '/disk_c/han/data/Pretrained_BigGAN_lmdb/Pretrained256_HR.lmdb'
+    # img_path_list, keys = prepare_keys_imagenet_jpg(folder_path)
+    # make_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys, n_thread=16)
 
     # Samples WT'ed (in jpg format not png)
     folder_path = '/disk_c/han/data/Pretrained_BigGAN_256x256/'
