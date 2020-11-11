@@ -505,7 +505,7 @@ def make_wt_lmdb_from_imgs(data_path,
         print(f'Finish reading {len(img_path_list)} images.')
 
     # create wt filters
-    filters = create_filters(device='cpu')
+    filters = create_filters(device='cuda:0')
 
     # create lmdb environment
     if map_size is None:
