@@ -1,6 +1,7 @@
 import importlib
 import mmcv
 import torch
+from torch.nn.parallel import DataParallel, DistributedDataParallel
 from collections import OrderedDict
 from copy import deepcopy
 from os import path as osp
