@@ -111,3 +111,6 @@ class RRDBNet(nn.Module):
             self.conv_up2(F.interpolate(feat, scale_factor=2, mode='nearest')))
         out = self.conv_last(self.lrelu(self.conv_hr(feat)))
         return out
+    
+    def reset_buffers(self):
+        pass
