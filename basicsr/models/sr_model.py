@@ -31,7 +31,8 @@ class SRModel(BaseModel):
         if load_path is not None:
             self.load_network(self.net_g, load_path,
                               self.opt['path']['strict_load'])
-
+        self.net_g.reset_buffers()
+        
         if self.is_train:
             self.init_training_settings()
 
