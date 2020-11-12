@@ -1,0 +1,31 @@
+name: ESRGAN_WT_Pixel_Finetune
+model_type: ESRGANModel
+scale: 4
+num_gpu: 1  # set num_gpu: 0 for cpu mode
+manual_seed: 0
+
+datasets:
+  test_1:  # the 1st test dataset
+    name: Biggan
+    type: SingleNumpyWTDataset
+    dataroot_lq: /disk_d/han/data/biggan/pretrained256_samples_128tl_z1.npz
+
+# network structures
+network_g:
+  type: MSRResNet_WT_Pixel
+  num_in_ch: 3
+  num_out_ch: 3
+  num_feat: 64
+  num_block: 16
+  upscale: 4
+
+# path
+path:
+  pretrain_model_g: experiments/052_ESRGAN_WT_Pixel_x4_f64b23_BigGAN_10k_B16G2_051finetune_wandb/models/net_g_latest.pth
+  strict_load: true
+
+# validation settings
+val:
+  save_img: true
+  save_h5: true
+  suffix: ~  # add suffix to saved images, if None, use exp name
