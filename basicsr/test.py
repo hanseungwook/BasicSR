@@ -4,6 +4,7 @@ import random
 import torch
 from mmcv.runner import get_dist_info, get_time_str, init_dist
 from os import path as osp
+import time
 
 from basicsr.data import create_dataloader, create_dataset
 from basicsr.models import create_model
@@ -81,12 +82,15 @@ def main():
     for test_loader in test_loaders:
         test_set_name = test_loader.dataset.opt['name']
         logger.info(f'Testing {test_set_name}...')
+        start_t = time.time()
         model.validation(
             test_loader,
             current_iter=opt['name'],
             tb_logger=None,
             save_img=opt['val']['save_img'],
             save_h5=opt['val']['save_h5'])
+        end_t = time.time()
+        logger.info('Time for validation of 50,000 images: {}'.format(end_t - start_t))
 
 
 if __name__ == '__main__':
