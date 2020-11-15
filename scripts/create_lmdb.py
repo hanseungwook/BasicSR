@@ -53,27 +53,33 @@ def create_lmdb_for_imagenet():
             DIV2K_train_LR_bicubic/X4_sub
         Remember to modify opt configurations according to your settings.
     """
-    # HR train images
-    folder_path = '/disk_c/han/data/ImageNet_256x256/train/'
-    lmdb_path = '/disk_c/han/data/ImageNet_lmdb/ImageNet_train_HR.lmdb'
-    img_path_list, keys = prepare_keys_imagenet(folder_path)
-    make_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys, n_thread=16)
+    # HR train images (256x)
+    # folder_path = '/disk_c/han/data/ImageNet_256x256/train/'
+    # lmdb_path = '/disk_c/han/data/ImageNet_lmdb/ImageNet_train_HR.lmdb'
+    # img_path_list, keys = prepare_keys_imagenet(folder_path)
+    # make_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys, n_thread=16)
 
-    # HR val images
-    folder_path = '/disk_c/han/data/ImageNet_256x256/val/'
-    lmdb_path = '/disk_c/han/data/ImageNet_lmdb/ImageNet_val_HR.lmdb'
-    img_path_list, keys = prepare_keys_imagenet(folder_path)
-    make_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys, n_thread=16)
+    # # HR val images (256x)
+    # folder_path = '/disk_c/han/data/ImageNet_256x256/val/'
+    # lmdb_path = '/disk_c/han/data/ImageNet_lmdb/ImageNet_val_HR.lmdb'
+    # img_path_list, keys = prepare_keys_imagenet(folder_path)
+    # make_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys, n_thread=16)
 
-    # LR train images
-    folder_path = '/disk_c/han/data/ImageNet_64x64/train/'
-    lmdb_path = '/disk_c/han/data/ImageNet_lmdb/ImageNet_train_LR.lmdb'
-    img_path_list, keys = prepare_keys_imagenet(folder_path)
-    make_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys, n_thread=16)
+    # LR train images (64x)
+    # folder_path = '/disk_c/han/data/ImageNet_64x64/train/'
+    # lmdb_path = '/disk_c/han/data/ImageNet_lmdb/ImageNet_train_LR.lmdb'
+    # img_path_list, keys = prepare_keys_imagenet(folder_path)
+    # make_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys, n_thread=16)
 
-    # LR val images
-    folder_path = '/disk_c/han/data/ImageNet_64x64/val/'
-    lmdb_path = '/disk_c/han/data/ImageNet_lmdb/ImageNet_val_LR.lmdb'
+    # # LR val images (64x)
+    # folder_path = '/disk_c/han/data/ImageNet_64x64/val/'
+    # lmdb_path = '/disk_c/han/data/ImageNet_lmdb/ImageNet_val_LR.lmdb'
+    # img_path_list, keys = prepare_keys_imagenet(folder_path)
+    # make_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys, n_thread=16)
+
+    # LR val images (128x)
+    folder_path = '/disk_c/han/data/ImageNet_128x128/val/'
+    lmdb_path = '/disk_c/han/data/ImageNet_lmdb/ImageNet_val_128.lmdb'
     img_path_list, keys = prepare_keys_imagenet(folder_path)
     make_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys, n_thread=16)
 
@@ -341,9 +347,9 @@ def prepare_keys_vimeo90k(folder_path, train_list_path, mode):
 
 
 if __name__ == '__main__':
-    # create_lmdb_for_imagenet()
+    create_lmdb_for_imagenet()
     # create_lmdb_for_imagenet_wt()
-    create_lmdb_for_biggan_samples()
+    # create_lmdb_for_biggan_samples()
     # create_lmdb_for_imagenet_inter_wt()
     # create_lmdb_for_lsun_church_wt()
     # create_lmdb_for_imagenet_lr()
