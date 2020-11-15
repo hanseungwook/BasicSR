@@ -46,15 +46,15 @@ def main():
     opt['compression_level'] = 3
 
     # HR train images
-    opt['input_folder'] = '/disk_c/han/data/ImageNet_256x256/train/'
-    opt['save_folder'] = '/disk_c/han/data/ImageNet_64x64/train/'
-    opt['scale'] = 4
-    extract_subimages(opt)
+    # opt['input_folder'] = '/disk_c/han/data/ImageNet_256x256/train/'
+    # opt['save_folder'] = '/disk_c/han/data/ImageNet_64x64/train/'
+    # opt['scale'] = 4
+    # extract_subimages(opt)
 
     # HR val images
     opt['input_folder'] = '/disk_c/han/data/ImageNet_256x256/val/'
-    opt['save_folder'] = '/disk_c/han/data/ImageNet_64x64/val/'
-    opt['scale'] = 4
+    opt['save_folder'] = '/disk_c/han/data/ImageNet_128x128/val/'
+    opt['scale'] = 2
     extract_subimages(opt)
 
 
