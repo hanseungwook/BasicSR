@@ -138,7 +138,7 @@ class SRModel(BaseModel):
         # Set up h5 file, if save
         if save_h5: 
             h5_file = h5py.File(osp.join(self.opt['path']['visualization'], 'recon_img.hdf5'), 'w')
-            h5_dataset = h5_file.create_dataset('data', shape=(len(dataloader.dataset), 3, 256, 256), dtype=np.float32, fillvalue=0)
+            h5_dataset = h5_file.create_dataset('data', shape=(len(dataloader.dataset), 3, 2048, 2048), dtype=np.float32, fillvalue=0)
             counter = 0
 
         for idx, val_data in enumerate(dataloader):
