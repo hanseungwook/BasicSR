@@ -10,7 +10,7 @@ datasets:
     # type: PairedImageDataset
     type: SingleImageDataset
     # dataroot_gt: /disk_c/han/data/ImageNet_lmdb/ImageNet_val_HR.lmdb
-    dataroot_lq: /disk_c/han/data/ImageNet_lmdb/ImageNet_val_128.lmdb
+    dataroot_lq: /disk_c/han/data/ImageNet_lmdb/ImageNet_val_LR.lmdb
     filename_tmpl: '{}'
     io_backend:
       type: lmdb
